@@ -58,7 +58,7 @@ public class Unit : MonoBehaviour
         if (_targetResource == null || _targetResource.IsCollected) 
             return;
 
-        _targetResource.Collect();
+        _hasResource = true;
 
         if (_targetResource is MonoBehaviour resourceMono)
         {
@@ -67,6 +67,7 @@ public class Unit : MonoBehaviour
             resourceMono.transform.localRotation = Quaternion.identity;
         }
 
+        _targetResource.Collect();
         ResourceReached?.Invoke(this, _targetResource);
     }
 
@@ -101,6 +102,7 @@ public class Unit : MonoBehaviour
 
     private void DepositResource()
     {
+        Debug.Log("Resource delivered to base.");
         if (_targetResource != null)
         {
             if (_targetResource is MonoBehaviour resourceMono)
@@ -114,6 +116,7 @@ public class Unit : MonoBehaviour
             }
 
             _targetResource = null;
+            _hasResource = false;
         }
 
         _ownerBase?.UnitBecameAvailable(this);

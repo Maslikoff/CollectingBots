@@ -6,7 +6,7 @@ public class Base : MonoBehaviour
 {
     [SerializeField] private UnitPool _unitPool;
     [SerializeField] private int _initialUnits = 3;
-    [SerializeField] private float _scanInterval = 3f;
+    [SerializeField] private float _scanInterval = .1f;
 
     private List<Unit> _availableUnits;
     private ResourcePool _resourcePool;
