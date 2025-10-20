@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Unit : MonoBehaviour
@@ -10,16 +9,16 @@ public class Unit : MonoBehaviour
     [SerializeField] private Transform _resourceCarryVisual;
 
     private Vector3 _targetPosition;
-    private ITakeResource _targetResource;
+    private ITakeResource _carriedResource;
     private Base _ownerBase;
 
     private bool _isMoving = false;
     private bool _hasResource = false;
 
-    public ITakeResource TargetResource => _targetResource;
+    public ITakeResource CarriedResource => _carriedResource;
     public bool IsAvailable => !_isMoving && !_hasResource;
 
-    private Action<Unit, ITakeResource> ResourceReached;
+    private Action<Unit> ResourceReached;
     private Action<Unit> BaseReached;
 
     private void Update()
@@ -33,17 +32,22 @@ public class Unit : MonoBehaviour
         _ownerBase = baseController;
     }
 
-    public void AssignResource(ITakeResource resource, Action<Unit, ITakeResource> onReached)
+    public void AssignToCollectResource(ITakeResource resource, System.Action<Unit> onPickedUp, System.Action<Unit> onDelivered)
     {
-        if (IsAvailable == false) 
+        if (IsAvailable == false)
             return;
 
-        _targetResource = resource;
-        _targetPosition = resource.Position;
-        ResourceReached = onReached;
-        _isMoving = true;
+        ResourceReached = onPickedUp;
+        BaseReached = onDelivered;
 
-        _ownerBase?.UnitBecameBusy(this);
+        if (resource != null)
+        {
+            _targetPosition = new Vector3(resource.Position.x, transform.position.y, resource.Position.z);
+            _carriedResource = resource;
+            _isMoving = true;
+
+            _ownerBase?.UnitBecameBusy(this);
+        }
     }
 
     public void SendToBase(Vector3 basePosition, Action<Unit> onReached)
@@ -55,20 +59,29 @@ public class Unit : MonoBehaviour
 
     public void PickUpResource()
     {
-        if (_targetResource == null || _targetResource.IsCollected) 
+        if (_carriedResource == null)
             return;
 
         _hasResource = true;
 
-        if (_targetResource is MonoBehaviour resourceMono)
+        if (_carriedResource is MonoBehaviour resourceMono)
         {
             resourceMono.transform.SetParent(_resourceCarryVisual);
             resourceMono.transform.localPosition = Vector3.zero;
             resourceMono.transform.localRotation = Quaternion.identity;
+
+            if (resourceMono.TryGetComponent<Rigidbody>(out var rb))
+            {
+                rb.isKinematic = true;
+                rb.detectCollisions = false;
+            }
         }
 
-        _targetResource.Collect();
-        ResourceReached?.Invoke(this, _targetResource);
+        Vector3 basePosition = _ownerBase.transform.position;
+        _targetPosition = new Vector3(basePosition.x, transform.position.y, basePosition.z);
+        _isMoving = true;
+
+        ResourceReached?.Invoke(this);
     }
 
     private void MoveToTarget()
@@ -76,7 +89,7 @@ public class Unit : MonoBehaviour
         Vector3 direction = (_targetPosition - transform.position).normalized;
         transform.position += direction * _moveSpeed * Time.deltaTime;
 
-        if(direction != Vector3.zero)
+        if (direction != Vector3.zero)
             transform.rotation = Quaternion.LookRotation(direction);
 
         float distance = Vector3.Distance(transform.position, _targetPosition);
@@ -89,36 +102,24 @@ public class Unit : MonoBehaviour
     {
         _isMoving = false;
 
-        if(_hasResource == false)
-        {
+        if (_hasResource == false)
             PickUpResource();
-        }
         else
-        {
             DepositResource();
-            BaseReached?.Invoke(this);
-        }
     }
 
     private void DepositResource()
     {
-        Debug.Log("Resource delivered to base.");
-        if (_targetResource != null)
+        if (_carriedResource != null)
         {
-            if (_targetResource is MonoBehaviour resourceMono)
-            {
-                ResourcePool resourcePool = FindObjectOfType<ResourcePool>();
-
-                if (resourcePool != null && resourceMono is Resource resource)
-                    resourcePool.ReturnResource(resource);
-                else
-                    resourceMono.gameObject.SetActive(false);
-            }
-
-            _targetResource = null;
-            _hasResource = false;
+            if (_carriedResource is MonoBehaviour resourceMono)
+                _carriedResource.Collect();
+         
+            _carriedResource = null;
         }
 
+        _hasResource = false;
+        BaseReached?.Invoke(this);
         _ownerBase?.UnitBecameAvailable(this);
     }
 }

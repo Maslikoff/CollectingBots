@@ -10,6 +10,7 @@ public class ResourcePool : ObjectPool<Resource>
 
     private List<ITakeResource> _activeResources;
     private Coroutine _spawnCoroutine;
+    private ResourceFactory _resourceFactory;
 
     public List<ITakeResource> ActiveResourceList => _activeResources;
 
@@ -17,10 +18,7 @@ public class ResourcePool : ObjectPool<Resource>
     {
         _activeResources = new List<ITakeResource>();
         base.Awake();
-    }
 
-    private void Start()
-    {
         _spawnCoroutine = StartCoroutine(SpawnResourcesRoutine());
     }
 
@@ -34,26 +32,23 @@ public class ResourcePool : ObjectPool<Resource>
     {
         base.OnObjectGet(resource);
 
-        resource.IsCollected = false;
-        if (resource.TryGetComponent<Renderer>(out var renderer))
-            renderer.enabled = true;
-        if (resource.TryGetComponent<Collider>(out var collider))
-            collider.enabled = true;
-
+        _resourceFactory?.RegisterResource(resource);
         _activeResources.Add(resource);
     }
 
     protected override void OnObjectReturn(Resource resource)
     {
         base.OnObjectReturn(resource);
+
+        _resourceFactory?.UnregisterResource(resource);
         _activeResources.Remove(resource);
-        resource.gameObject.SetActive(false);
     }
 
     protected override void ResetObject(Resource resource)
     {
         base.ResetObject(resource);
-        resource.IsCollected = false;
+ 
+        resource.transform.SetParent(null);
     }
 
     public void SpawnResource()
@@ -66,33 +61,20 @@ public class ResourcePool : ObjectPool<Resource>
         }
     }
 
-    public List<ITakeResource> GetAvailableResources()
+    public void ReturnResource(Resource resource)
     {
-        List<ITakeResource> available = new List<ITakeResource>();
-
-        for (int i = _activeResources.Count - 1; i >= 0; i--)
-        {
-            ITakeResource resource = _activeResources[i];
-
-            if (resource == null || resource.IsCollected)
-            {
-                _activeResources.RemoveAt(i);
-                continue;
-            }
-
-            available.Add(resource);
-        }
-
-        return available;
+        ReturnObject(resource);
     }
 
     private IEnumerator SpawnResourcesRoutine()
     {
         yield return new WaitForSeconds(1f);
 
+        var wait = new WaitForSeconds(_spawnInterval);
+
         while (enabled)
         {
-            yield return new WaitForSeconds(_spawnInterval);
+            yield return wait;
             SpawnResource();
         }
     }
@@ -100,11 +82,6 @@ public class ResourcePool : ObjectPool<Resource>
     private Vector3 GetRandomSpawnPosition()
     {
         Vector2 randomCircle = Random.insideUnitCircle * _spawnRadius;
-        return new Vector3(randomCircle.x, 0, randomCircle.y);
-    }
-
-    public void ReturnResource(Resource resource)
-    {
-        ReturnObject(resource);
+        return new Vector3(randomCircle.x, 0.5f, randomCircle.y);
     }
 }

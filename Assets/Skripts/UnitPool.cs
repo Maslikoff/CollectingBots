@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class UnitPool : ObjectPool<Unit>
@@ -15,12 +13,20 @@ public class UnitPool : ObjectPool<Unit>
         unit.Initialize(_ownerBase);
 
         if (_spawnPoint != null)
-            unit.transform.position = _spawnPoint.position + Random.insideUnitSphere * 2f;
+        {
+            Vector3 spawnPosition = _spawnPoint.position + Random.insideUnitSphere * 2f;
+            spawnPosition.y = 1f; 
+            unit.transform.position = spawnPosition;
+        }
     }
 
     protected override void ResetObject(Unit unit)
     {
         base.ResetObject(unit);
+
+        Vector3 resetPosition = unit.transform.position;
+        resetPosition.y = 1f;
+        unit.transform.position = resetPosition;
     }
 
     public void Initialize(Base ownerBase)

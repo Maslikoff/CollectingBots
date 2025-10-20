@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,20 +6,21 @@ using UnityEngine;
 public class Base : MonoBehaviour
 {
     [SerializeField] private UnitPool _unitPool;
+    [SerializeField] private ResourceFactory _resourceFactory;
     [SerializeField] private int _initialUnits = 3;
-    [SerializeField] private float _scanInterval = .1f;
+    [SerializeField] private float _scanInterval = 3f;
 
     private List<Unit> _availableUnits;
-    private ResourcePool _resourcePool;
     private int _totalResources = 0;
-    private float _scanTimer;
+    private Coroutine _scanCoroutine;
 
     public int TotalResources => _totalResources;
+
+    public event Action<int> ResourcesChanged;
 
     private void Start()
     {
         _availableUnits = new List<Unit>();
-        _resourcePool = FindObjectOfType<ResourcePool>();
 
         if (_unitPool != null)
         {
@@ -31,56 +33,34 @@ public class Base : MonoBehaviour
             }
         }
 
-        _scanTimer = _scanInterval;
+        ResourcesChanged?.Invoke(_totalResources);
+
+        _scanCoroutine = StartCoroutine(ScanForResourcesRoutine());
     }
 
-    private void Update()
+    private void OnDestroy()
     {
-        _scanTimer -= Time.deltaTime;
+        if (_scanCoroutine != null)
+            StopCoroutine(_scanCoroutine);
+    }
 
-        if (_scanTimer <= 0)
+    private IEnumerator ScanForResourcesRoutine()
+    {
+        var wait = new WaitForSeconds(_scanInterval);
+
+        while (enabled)
         {
-            ScanForResources();
-            _scanTimer = _scanInterval;
+            yield return wait;
+
+            AssignUnitsToResources();
         }
     }
 
-    private void ScanForResources()
+    public void AddResource()
     {
-        if (_availableUnits.Count == 0 || _resourcePool == null) 
-            return;
+        _totalResources++;
 
-        List<ITakeResource> availableResources = _resourcePool.GetAvailableResources();
-
-        foreach (ITakeResource resource in availableResources)
-        {
-            if (_availableUnits.Count > 0 && !resource.IsCollected)
-            {
-                Unit unit = _availableUnits[0];
-                _availableUnits.RemoveAt(0);
-
-                unit.AssignResource(resource, OnUnitReachedResource);
-            }
-        }
-    }
-
-    private void OnUnitReachedResource(Unit unit, ITakeResource resource)
-    {
-        unit.SendToBase(transform.position, OnUnitReachedBase);
-    }
-
-    private void OnUnitReachedBase(Unit unit)
-    {
-        AddResource(1);
-
-        if (_availableUnits.Contains(unit) == false)
-            _availableUnits.Add(unit);
-    }
-
-    public void AddResource(int amount)
-    {
-        _totalResources += amount;
-        Debug.Log($"Resources collected: {_totalResources}");
+        ResourcesChanged?.Invoke(_totalResources);
     }
 
     public void UnitBecameAvailable(Unit unit)
@@ -92,5 +72,41 @@ public class Base : MonoBehaviour
     public void UnitBecameBusy(Unit unit)
     {
         _availableUnits.Remove(unit);
+    }
+
+    private void AssignUnitsToResources()
+    {
+        if (_availableUnits.Count == 0 || _resourceFactory == null)
+            return;
+
+        foreach (Unit unit in _availableUnits.ToArray())
+        {
+            if (unit.IsAvailable)
+            {
+                ITakeResource resource = _resourceFactory.GetAvailableResource();
+
+                if (resource != null)
+                {
+                    unit.AssignToCollectResource(resource, OnResourcePickedUp, OnResourceDelivered);
+                    _availableUnits.Remove(unit);
+                }
+            }
+        }
+    }
+
+    private void OnResourcePickedUp(Unit unit)
+    {
+        Debug.Log("Unit picked up resource");
+    }
+
+    private void OnResourceDelivered(Unit unit)
+    {
+        if (unit.CarriedResource != null)
+            _resourceFactory.MarkResourceAsDelivered(unit.CarriedResource);
+
+        AddResource();
+
+        if (_availableUnits.Contains(unit) == false)
+            _availableUnits.Add(unit);
     }
 }

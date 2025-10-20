@@ -1,48 +1,44 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Renderer))]
+[RequireComponent(typeof(Collider))]
 public class Resource : MonoBehaviour, ITakeResource
 {
     [SerializeField] private ResourceType _resourceType;
-    [SerializeField] private Renderer _renderer;
-    [SerializeField] private Collider _collider;
 
     private Rigidbody _rigidbody;
+    private Renderer _renderer;
+    private Collider _collider;
 
     public ResourceType Type => _resourceType;
-    public bool IsCollected { get; set; }
     public Vector3 Position => transform.position;
 
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
+        _renderer = GetComponent<Renderer>();
+        _collider = GetComponent<Collider>();
     }
 
     public void Collect()
     {
-        IsCollected = true;
         _renderer.enabled = false;
         _collider.enabled = false;
+
+        _rigidbody.isKinematic = true;
+        _rigidbody.detectCollisions = false;
     }
 
     public void ReturnToPool()
     {
-        IsCollected = false;
         _renderer.enabled = true;
         _collider.enabled = true;
+
+        _rigidbody.isKinematic = false;
+        _rigidbody.detectCollisions = true;
+
+        transform.SetParent(null);
         gameObject.SetActive(false);
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.TryGetComponent<Unit>(out Unit unit))
-        {
-            _rigidbody.isKinematic = true;
-
-            if (unit != null && unit.TargetResource == this && !IsCollected)
-                unit.PickUpResource();
-        }
     }
 }
