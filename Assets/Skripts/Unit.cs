@@ -58,6 +58,8 @@ public class Unit : MonoBehaviour
         if (_targetResource == null || _targetResource.IsCollected) 
             return;
 
+        _targetResource.Collect();
+
         if (_targetResource is MonoBehaviour resourceMono)
         {
             resourceMono.transform.SetParent(_resourceCarryVisual);
