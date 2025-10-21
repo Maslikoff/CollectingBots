@@ -24,11 +24,10 @@ public class Base : MonoBehaviour
 
         if (_unitPool != null)
         {
-            _unitPool.Initialize(this);
-
             for (int i = 0; i < _initialUnits; i++)
             {
                 Unit unit = _unitPool.GetAvailableUnit();
+                SetupUnitEvents(unit);
                 _availableUnits.Add(unit);
             }
         }
@@ -42,6 +41,13 @@ public class Base : MonoBehaviour
     {
         if (_scanCoroutine != null)
             StopCoroutine(_scanCoroutine);
+    }
+
+    private void SetupUnitEvents(Unit unit)
+    {
+        unit.BecameAvailable += OnUnitBecameAvailable;
+        unit.BecameBusy += OnUnitBecameBusy;
+        unit.ResourceDelivered += OnResourceDelivered;
     }
 
     private IEnumerator ScanForResourcesRoutine()
@@ -63,13 +69,13 @@ public class Base : MonoBehaviour
         ResourcesChanged?.Invoke(_totalResources);
     }
 
-    public void UnitBecameAvailable(Unit unit)
+    public void OnUnitBecameAvailable(Unit unit)
     {
         if (_availableUnits.Contains(unit) == false)
             _availableUnits.Add(unit);
     }
 
-    public void UnitBecameBusy(Unit unit)
+    public void OnUnitBecameBusy(Unit unit)
     {
         _availableUnits.Remove(unit);
     }
@@ -87,26 +93,16 @@ public class Base : MonoBehaviour
 
                 if (resource != null)
                 {
-                    unit.AssignToCollectResource(resource, OnResourcePickedUp, OnResourceDelivered);
+                    unit.AssignToCollectResource(resource, transform.position);
                     _availableUnits.Remove(unit);
                 }
             }
         }
     }
 
-    private void OnResourcePickedUp(Unit unit)
+    private void OnResourceDelivered(Unit unit, ITakeResource resource)
     {
-        Debug.Log("Unit picked up resource");
-    }
-
-    private void OnResourceDelivered(Unit unit)
-    {
-        if (unit.CarriedResource != null)
-            _resourceFactory.MarkResourceAsDelivered(unit.CarriedResource);
-
+        _resourceFactory.MarkResourceAsDelivered(resource);
         AddResource();
-
-        if (_availableUnits.Contains(unit) == false)
-            _availableUnits.Add(unit);
     }
 }

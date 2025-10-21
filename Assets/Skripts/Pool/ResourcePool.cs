@@ -12,7 +12,7 @@ public class ResourcePool : ObjectPool<Resource>
     private Coroutine _spawnCoroutine;
     private ResourceFactory _resourceFactory;
 
-    public List<ITakeResource> ActiveResourceList => _activeResources;
+    public List<ITakeResource> ActiveResourceList => new List<ITakeResource>(_activeResources);
 
     protected override void Awake()
     {
@@ -82,6 +82,7 @@ public class ResourcePool : ObjectPool<Resource>
     private Vector3 GetRandomSpawnPosition()
     {
         Vector2 randomCircle = Random.insideUnitCircle * _spawnRadius;
+
         return new Vector3(randomCircle.x, 0.5f, randomCircle.y);
     }
 }

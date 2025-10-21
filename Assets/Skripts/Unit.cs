@@ -9,8 +9,8 @@ public class Unit : MonoBehaviour
     [SerializeField] private Transform _resourceCarryVisual;
 
     private Vector3 _targetPosition;
+    private Vector3 _basePosition;
     private ITakeResource _carriedResource;
-    private Base _ownerBase;
 
     private bool _isMoving = false;
     private bool _hasResource = false;
@@ -18,8 +18,9 @@ public class Unit : MonoBehaviour
     public ITakeResource CarriedResource => _carriedResource;
     public bool IsAvailable => !_isMoving && !_hasResource;
 
-    private Action<Unit> ResourceReached;
-    private Action<Unit> BaseReached;
+    public event Action<Unit> BecameAvailable;
+    public event Action<Unit> BecameBusy;
+    public event Action<Unit, ITakeResource> ResourceDelivered;
 
     private void Update()
     {
@@ -27,34 +28,20 @@ public class Unit : MonoBehaviour
             MoveToTarget();
     }
 
-    public void Initialize(Base baseController)
-    {
-        _ownerBase = baseController;
-    }
-
-    public void AssignToCollectResource(ITakeResource resource, System.Action<Unit> onPickedUp, System.Action<Unit> onDelivered)
+    public void AssignToCollectResource(ITakeResource resource, Vector3 basePosition)
     {
         if (IsAvailable == false)
             return;
-
-        ResourceReached = onPickedUp;
-        BaseReached = onDelivered;
 
         if (resource != null)
         {
             _targetPosition = new Vector3(resource.Position.x, transform.position.y, resource.Position.z);
             _carriedResource = resource;
             _isMoving = true;
+            _basePosition = basePosition;
 
-            _ownerBase?.UnitBecameBusy(this);
+            BecameBusy?.Invoke(this);
         }
-    }
-
-    public void SendToBase(Vector3 basePosition, Action<Unit> onReached)
-    {
-        BaseReached = onReached;
-        _targetPosition = basePosition;
-        _isMoving = true;
     }
 
     public void PickUpResource()
@@ -64,24 +51,19 @@ public class Unit : MonoBehaviour
 
         _hasResource = true;
 
-        if (_carriedResource is MonoBehaviour resourceMono)
-        {
-            resourceMono.transform.SetParent(_resourceCarryVisual);
-            resourceMono.transform.localPosition = Vector3.zero;
-            resourceMono.transform.localRotation = Quaternion.identity;
+        var resourceMono = _carriedResource as MonoBehaviour;
+        resourceMono.transform.SetParent(_resourceCarryVisual);
+        resourceMono.transform.localPosition = Vector3.zero;
+        resourceMono.transform.localRotation = Quaternion.identity;
 
-            if (resourceMono.TryGetComponent<Rigidbody>(out var rb))
-            {
-                rb.isKinematic = true;
-                rb.detectCollisions = false;
-            }
+        if (resourceMono.TryGetComponent<Rigidbody>(out var rb))
+        {
+            rb.isKinematic = true;
+            rb.detectCollisions = false;
         }
 
-        Vector3 basePosition = _ownerBase.transform.position;
-        _targetPosition = new Vector3(basePosition.x, transform.position.y, basePosition.z);
+        _targetPosition = new Vector3(_basePosition.x, transform.position.y, _basePosition.z);
         _isMoving = true;
-
-        ResourceReached?.Invoke(this);
     }
 
     private void MoveToTarget()
@@ -112,14 +94,12 @@ public class Unit : MonoBehaviour
     {
         if (_carriedResource != null)
         {
-            if (_carriedResource is MonoBehaviour resourceMono)
-                _carriedResource.Collect();
-         
+            _carriedResource.Collect();
+            ResourceDelivered?.Invoke(this, _carriedResource);
             _carriedResource = null;
         }
 
         _hasResource = false;
-        BaseReached?.Invoke(this);
-        _ownerBase?.UnitBecameAvailable(this);
+        BecameAvailable?.Invoke(this);
     }
 }
