@@ -1,31 +1,27 @@
 using System;
 using UnityEngine;
 
+[RequireComponent(typeof(Mover))]
 public class Unit : MonoBehaviour
 {
-    private const float MinDistance = 0.5f;
-
-    [SerializeField] private float _moveSpeed = 5f;
     [SerializeField] private Transform _resourceCarryVisual;
 
-    private Vector3 _targetPosition;
     private Vector3 _basePosition;
     private ITakeResource _carriedResource;
+    private Mover _mover;
 
-    private bool _isMoving = false;
     private bool _hasResource = false;
 
     public ITakeResource CarriedResource => _carriedResource;
-    public bool IsAvailable => !_isMoving && !_hasResource;
+    public bool IsAvailable => !_mover.IsMoving && !_hasResource;
 
     public event Action<Unit> BecameAvailable;
     public event Action<Unit> BecameBusy;
     public event Action<Unit, ITakeResource> ResourceDelivered;
 
-    private void Update()
+    private void Awake()
     {
-        if (_isMoving)
-            MoveToTarget();
+        _mover = GetComponent<Mover>();
     }
 
     public void AssignToCollectResource(ITakeResource resource, Vector3 basePosition)
@@ -35,16 +31,16 @@ public class Unit : MonoBehaviour
 
         if (resource != null)
         {
-            _targetPosition = new Vector3(resource.Position.x, transform.position.y, resource.Position.z);
             _carriedResource = resource;
-            _isMoving = true;
             _basePosition = basePosition;
+
+            _mover.MoveTo(resource.Position, OnPickUpResource);
 
             BecameBusy?.Invoke(this);
         }
     }
 
-    public void PickUpResource()
+    private void OnPickUpResource()
     {
         if (_carriedResource == null)
             return;
@@ -62,36 +58,13 @@ public class Unit : MonoBehaviour
             rb.detectCollisions = false;
         }
 
-        _targetPosition = new Vector3(_basePosition.x, transform.position.y, _basePosition.z);
-        _isMoving = true;
+        Debug.Log("Go to BAZA");
+        _mover.MoveTo(_basePosition, OnDepositResource);
     }
 
-    private void MoveToTarget()
+    private void OnDepositResource()
     {
-        Vector3 direction = (_targetPosition - transform.position).normalized;
-        transform.position += direction * _moveSpeed * Time.deltaTime;
-
-        if (direction != Vector3.zero)
-            transform.rotation = Quaternion.LookRotation(direction);
-
-        float distance = Vector3.Distance(transform.position, _targetPosition);
-
-        if (distance < MinDistance)
-            OnReachedTarget();
-    }
-
-    private void OnReachedTarget()
-    {
-        _isMoving = false;
-
-        if (_hasResource == false)
-            PickUpResource();
-        else
-            DepositResource();
-    }
-
-    private void DepositResource()
-    {
+        Debug.Log("BAZA");
         if (_carriedResource != null)
         {
             _carriedResource.Collect();

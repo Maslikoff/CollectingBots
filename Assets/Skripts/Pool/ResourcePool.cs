@@ -10,7 +10,7 @@ public class ResourcePool : ObjectPool<Resource>
 
     private List<ITakeResource> _activeResources;
     private Coroutine _spawnCoroutine;
-    private ResourceFactory _resourceFactory;
+    private ResourceHub _resourceFactory;
 
     public List<ITakeResource> ActiveResourceList => new List<ITakeResource>(_activeResources);
 

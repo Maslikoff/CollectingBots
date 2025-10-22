@@ -6,7 +6,7 @@ using UnityEngine;
 public class Base : MonoBehaviour
 {
     [SerializeField] private UnitPool _unitPool;
-    [SerializeField] private ResourceFactory _resourceFactory;
+    [SerializeField] private ResourceHub _resourceHub;
     [SerializeField] private int _initialUnits = 3;
     [SerializeField] private float _scanInterval = 3f;
 
@@ -82,14 +82,14 @@ public class Base : MonoBehaviour
 
     private void AssignUnitsToResources()
     {
-        if (_availableUnits.Count == 0 || _resourceFactory == null)
+        if (_availableUnits.Count == 0 || _resourceHub == null)
             return;
 
         foreach (Unit unit in _availableUnits.ToArray())
         {
             if (unit.IsAvailable)
             {
-                ITakeResource resource = _resourceFactory.GetAvailableResource();
+                ITakeResource resource = _resourceHub.GetAvailableResource();
 
                 if (resource != null)
                 {
@@ -102,7 +102,7 @@ public class Base : MonoBehaviour
 
     private void OnResourceDelivered(Unit unit, ITakeResource resource)
     {
-        _resourceFactory.MarkResourceAsDelivered(resource);
+        _resourceHub.MarkResourceAsDelivered(resource);
         AddResource();
     }
 }

@@ -220,8 +220,8 @@ GameObject:
   m_Component:
   - component: {fileID: 8328200561881072480}
   - component: {fileID: 8722527675366325217}
-  - component: {fileID: 2303303557598384316}
   - component: {fileID: 4369233546274414589}
+  - component: {fileID: 1406170069672018835}
   m_Layer: 0
   m_Name: BAZA
   m_TagString: Untagged
@@ -262,23 +262,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unitPool: {fileID: 0}
-  _resourceFactory: {fileID: 2303303557598384316}
+  _resourceFactory: {fileID: 1406170069672018835}
   _initialUnits: 3
   _scanInterval: 3
---- !u!114 &2303303557598384316
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1902154596681475545}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2063c2b4dd849b948aa49b4d06b82d27, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _scanRadius: 20
-  _resourcePool: {fileID: 0}
 --- !u!114 &4369233546274414589
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -292,7 +278,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _base: {fileID: 8722527675366325217}
-  _resourcesText: {fileID: 0}
+  _resourcesText: {fileID: 7570146771102655759}
+--- !u!114 &1406170069672018835
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1902154596681475545}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d629eff48bde184e89a28a59eb30a94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _scanRadius: 20
+  _resourcePool: {fileID: 0}
 --- !u!1 &3878072141448463132
 GameObject:
   m_ObjectHideFlags: 0

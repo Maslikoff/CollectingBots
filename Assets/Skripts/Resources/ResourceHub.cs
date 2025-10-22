@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
-public class ResourceFactory : MonoBehaviour
+public class ResourceHub : MonoBehaviour
 {
     [SerializeField] private float _scanRadius = 20f;
     [SerializeField] private ResourcePool _resourcePool;
@@ -66,11 +68,21 @@ public class ResourceFactory : MonoBehaviour
             var activeResources = _resourcePool.ActiveResourceList;
 
             foreach (var resource in activeResources)
-            {
-                if (_busyResources.Contains(resource) == false && _freeResources.Contains(resource) == false)
+                if (_busyResources.Contains(resource) == false && _freeResources.Contains(resource) == false && IsResourceInRange(resource))
                     RegisterResource(resource);
-            }
         }
+    }
+
+    private bool IsResourceInRange(ITakeResource resource)
+    {
+        if (resource is MonoBehaviour behaviour)
+        {
+            float distance = Vector3.Distance(transform.position, behaviour.transform.position);
+
+            return distance <= _scanRadius;
+        }
+
+        return true;
     }
 
     private bool IsResourceAccessible(ITakeResource resource) => true;
