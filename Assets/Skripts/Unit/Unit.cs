@@ -3,38 +3,53 @@ using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(Mover))]
+[RequireComponent(typeof(Builder))]
 public class Unit : MonoBehaviour, IResourceTypeListener
 {
     [SerializeField] private Transform _resourceCarryVisual;
 
     private ITakeResource _carriedResource;
     private ResourceType _currentResourceType;
-    private Vector3 _basePosition;
     private Mover _mover;
+    private Builder _builder;
+    private Vector3 _basePosition;
     private Coroutine _collectionCoroutine;
 
     private bool _hasResource = false;
     private bool _movementCompleted;
-    private bool _isBuilder = true;
 
     public ITakeResource CarriedResource => _carriedResource;
-    public bool IsAvailable => !_mover.IsMoving && !_hasResource;
-    public bool IsBusy => _mover.IsMoving || _hasResource || _collectionCoroutine != null;
-    public bool IsBuilder => _isBuilder;
+    public bool IsAvailable => _mover.IsMoving == false && _hasResource == false && _builder.IsBuilding == false;
+    public bool IsBusy => _mover.IsMoving || _hasResource || _collectionCoroutine != null || _builder.IsBuilding;
+    public bool IsBuilder => _builder.IsBuilder;
 
     public event Action<Unit> BecameAvailable;
     public event Action<Unit> BecameBusy;
     public event Action<Unit, ITakeResource> ResourceDelivered;
 
+    private Action _currentBuildCallback;
+
     private void Awake()
     {
         _mover = GetComponent<Mover>();
+        _builder = GetComponent<Builder>();
+
+        _builder.MovementRequested += OnBuildMovementRequested;
+        _builder.BuildCompleted += OnBuildCompleted;
+        _builder.BuildStarted += OnBuildStarted;
     }
 
     private void OnDestroy()
     {
         if (_collectionCoroutine != null)
             StopCoroutine(_collectionCoroutine);
+
+        if (_builder != null)
+        {
+            _builder.MovementRequested -= OnBuildMovementRequested;
+            _builder.BuildCompleted -= OnBuildCompleted;
+            _builder.BuildStarted -= OnBuildStarted;
+        }
     }
 
     public void OnResourceTypeChanged(ResourceType newResourceType)
@@ -118,11 +133,11 @@ public class Unit : MonoBehaviour, IResourceTypeListener
 
     public void StartBuildMission(Vector3 buildPosition, Action onBuildComplete)
     {
-        if (IsAvailable == false || !_isBuilder)
+        if (IsAvailable == false || IsBuilder == false)
             return;
 
-        StartCoroutine(BuildMissionRoutine(buildPosition, onBuildComplete));
-        BecameBusy?.Invoke(this);
+        _currentBuildCallback = onBuildComplete;
+        _builder.StartBuildMission(buildPosition, _currentBuildCallback);
     }
 
     private IEnumerator CollectionRoutine()
@@ -157,19 +172,28 @@ public class Unit : MonoBehaviour, IResourceTypeListener
         BecameAvailable?.Invoke(this);
     }
 
-    private IEnumerator BuildMissionRoutine(Vector3 buildPosition, Action onBuildComplete)
+    private void OnBuildMovementRequested(Vector3 buildPosition)
     {
-        yield return MoveToPositionRoutine(buildPosition);
+        MoveToPosition(buildPosition);
+    }
 
-        yield return new WaitForSeconds(2f);
+    private void OnBuildStarted(Builder builder)
+    {
+        BecameBusy?.Invoke(this);
+    }
 
-        onBuildComplete?.Invoke();
+    private void OnBuildCompleted(Builder builder)
+    {
+        _currentBuildCallback = null;
         BecameAvailable?.Invoke(this);
     }
 
     private void OnMovementCompleted()
     {
         _movementCompleted = true;
+
+        if (_builder.IsBuilding && _mover.IsMoving == false)
+            _builder.OnReachedBuildSite();
     }
 
     private void PickUpResource()

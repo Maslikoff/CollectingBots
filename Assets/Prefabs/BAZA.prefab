@@ -543,6 +543,7 @@ MonoBehaviour:
   _resourceCollector: {fileID: 0}
   _resourceHub: {fileID: 0}
   _flagControll: {fileID: 2823888584325349155}
+  _baseBuilder: {fileID: 0}
   _allowedResources: 3
   _initialUnits: 3
   _scanInterval: 1

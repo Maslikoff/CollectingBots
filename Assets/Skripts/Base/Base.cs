@@ -12,6 +12,7 @@ public class Base : MonoBehaviour
     [SerializeField] private ResourceCollector _resourceCollector;
     [SerializeField] private ResourceHub _resourceHub;
     [SerializeField] private BaseFlagControll _flagControll;
+    [SerializeField] private BaseBuilder _baseBuilder;
 
     [Header("Settings")]
     [SerializeField] private ResourceType _allowedResources = ResourceType.Nothing;
@@ -21,8 +22,6 @@ public class Base : MonoBehaviour
     private List<Unit> _availableUnits;
     private Transform _transform;
     private Coroutine _scanCoroutine;
-
-    private bool _isBuildingInProgress = false;
 
     public int TotalResources => _resourceCollector.TotalResources;
     public int AvailableResources => _resourceCollector.AvailableResources;
@@ -43,6 +42,8 @@ public class Base : MonoBehaviour
 
         InitializeComponents();
         CreateInitialUnits();
+
+        _baseBuilder.Initialize(this);
 
         _scanCoroutine = StartCoroutine(ScanForResourcesRoutine());
     }
@@ -94,20 +95,7 @@ public class Base : MonoBehaviour
         AvailableUnits.Add(unit);
     }
 
-    public void StartBuilding()
-    {
-        _isBuildingInProgress = true;
-    }
-
-    public void FinishBuilding()
-    {
-        _isBuildingInProgress = false;
-    }
-
-    public bool IsBuildingInProgress()
-    {
-        return _isBuildingInProgress;
-    }
+    public bool SpendResourcesForBuilding(int amount) => _resourceCollector.TrySpendResourcesForBuilding(amount);
 
     private void ReturnAllUnitsToBase(Vector3 basePosition)
     {
@@ -164,7 +152,7 @@ public class Base : MonoBehaviour
         if (_allowedResources == ResourceType.Nothing)
             return;
 
-        if (IsBuildingInProgress()) 
+        if (_baseBuilder.IsBuilding) 
             return;
 
         foreach (Unit unit in _availableUnits.Where(unit => unit.IsAvailable).ToList())

@@ -30,6 +30,18 @@ public class ResourceCollector : MonoBehaviour
         return false;
     }
 
+    public bool TrySpendResourcesForBuilding(int amount)
+    {
+        if (TotalResources >= amount)
+        {
+            _resourcesSpent += amount;
+            ResourcesChanged?.Invoke(AvailableResources);
+            Debug.Log($"Spent {amount} for building. Total: {TotalResources}, Available: {AvailableResources}");
+            return true;
+        }
+        return false;
+    }
+
     public void ResetResources()
     {
         _totalResources = 0;

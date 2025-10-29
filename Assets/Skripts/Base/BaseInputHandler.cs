@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class BaseInputHandler : MonoBehaviour
 {
@@ -35,6 +36,9 @@ public class BaseInputHandler : MonoBehaviour
 
     private void HandleMouseClick()
     {
+        if (EventSystem.current.IsPointerOverGameObject()) 
+            return;
+
         Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
