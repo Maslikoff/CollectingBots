@@ -5,7 +5,7 @@ public class ObjectPool<T> : MonoBehaviour where T : Component
 {
     [SerializeField] private int _initialSize = 10;
     [SerializeField] private Transform _container;
-    [SerializeField] private T _prefab;
+    [SerializeField] private List<T> _prefabs;
 
     private Queue<T> _pool = new Queue<T>();
     private HashSet<T> _activeObjects = new HashSet<T>();
@@ -70,9 +70,11 @@ public class ObjectPool<T> : MonoBehaviour where T : Component
 
     private T CreateNewObject()
     {
+        T randomPrefab = GetRandomPrefab();
+
         T newObject = _container != null ?
-            Instantiate(_prefab, _container) :
-            Instantiate(_prefab);
+            Instantiate(randomPrefab, _container) :
+            Instantiate(randomPrefab);
 
         newObject.gameObject.SetActive(false);
         _pool.Enqueue(newObject);
@@ -81,9 +83,22 @@ public class ObjectPool<T> : MonoBehaviour where T : Component
         return newObject;
     }
 
+    private T GetRandomPrefab()
+    {
+        List<T> validPrefabs = _prefabs.FindAll(prefab => prefab != null);
+
+        if (validPrefabs.Count == 0)
+            return null;
+
+        return validPrefabs[Random.Range(0, validPrefabs.Count)];
+    }
+
     protected virtual void InitializeObject(T obj) { }
     protected virtual void ResetObject(T obj)
     {
+        if (_container != null)
+            obj.transform.SetParent(_container);
+
         obj.transform.position = Vector3.zero;
         obj.transform.rotation = Quaternion.identity;
     }

@@ -4,7 +4,8 @@ public enum ResourceType
 {
     Wood,
     Stone,
-    Metall
+    Metall,
+    Nothing
 }
 
 public interface ITakeResource

@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 3992598408746233978}
   - component: {fileID: -7146783647983302507}
   m_Layer: 0
-  m_Name: Resurs
+  m_Name: Metall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -64,7 +64,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a54bd59115d3e634aa7be291e2da0d64, type: 2}
+  - {fileID: 2100000, guid: 3047a9b87033b254d98dd5bab6d4366c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -148,6 +148,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba740ca8b826c6f40879910b16079ccc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _resourceType: 0
-  _renderer: {fileID: 8244590709453541639}
-  _collider: {fileID: 3992598408746233978}
+  _resourceType: 2

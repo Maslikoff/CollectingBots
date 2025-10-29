@@ -13,7 +13,6 @@ public class Mover : MonoBehaviour
     private Action ReachedTarget;
 
     public bool IsMoving => _isMoving;
-    public Vector3 TargetPosition => _targetPosition;
 
     private void Update()
     {
@@ -26,7 +25,6 @@ public class Mover : MonoBehaviour
         _targetPosition = new Vector3(targetPosition.x, transform.position.y, targetPosition.z);
         _isMoving = true;
         ReachedTarget = OnReachedTarget;
-        Debug.Log($"Moving to: {targetPosition}");
     }
 
     private void MoveToTarget()
@@ -42,6 +40,7 @@ public class Mover : MonoBehaviour
         if (distance < MinDistance)
         {
             _isMoving = false;
+
             ReachedTarget?.Invoke();
             ReachedTarget = null;
         }

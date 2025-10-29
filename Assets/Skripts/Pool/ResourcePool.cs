@@ -10,7 +10,7 @@ public class ResourcePool : ObjectPool<Resource>
 
     private List<ITakeResource> _activeResources;
     private Coroutine _spawnCoroutine;
-    private ResourceHub _resourceFactory;
+    private ResourceHub _resourceHub;
 
     public List<ITakeResource> ActiveResourceList => new List<ITakeResource>(_activeResources);
 
@@ -32,7 +32,7 @@ public class ResourcePool : ObjectPool<Resource>
     {
         base.OnObjectGet(resource);
 
-        _resourceFactory?.RegisterResource(resource);
+        _resourceHub?.RegisterResource(resource);
         _activeResources.Add(resource);
     }
 
@@ -40,7 +40,7 @@ public class ResourcePool : ObjectPool<Resource>
     {
         base.OnObjectReturn(resource);
 
-        _resourceFactory?.UnregisterResource(resource);
+        _resourceHub?.UnregisterResource(resource);
         _activeResources.Remove(resource);
     }
 

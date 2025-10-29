@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class ResourceHub : MonoBehaviour
@@ -8,32 +7,45 @@ public class ResourceHub : MonoBehaviour
     [SerializeField] private float _scanRadius = 20f;
     [SerializeField] private ResourcePool _resourcePool;
 
-    private HashSet<ITakeResource> _freeResources = new HashSet<ITakeResource>();
-    private HashSet<ITakeResource> _busyResources = new HashSet<ITakeResource>();
+    private Dictionary<ResourceType, HashSet<ITakeResource>> _freeResources = new Dictionary<ResourceType, HashSet<ITakeResource>>();
+    private Dictionary<ResourceType, HashSet<ITakeResource>> _busyResources = new Dictionary<ResourceType, HashSet<ITakeResource>>();
+
+    public event Action ResourcesUpdated;
+
+    private void Awake()
+    {
+        foreach (ResourceType type in Enum.GetValues(typeof(ResourceType)))
+        {
+            _freeResources[type] = new HashSet<ITakeResource>();
+            _busyResources[type] = new HashSet<ITakeResource>();
+        }
+    }
 
     public void RegisterResource(ITakeResource resource)
     {
-        if (_busyResources.Contains(resource) == false)
-            _freeResources.Add(resource);
+        ResourceType resourceType = GetResourceType(resource);
+        if (_busyResources[resourceType].Contains(resource) == false)
+            _freeResources[resourceType].Add(resource);
     }
 
     public void UnregisterResource(ITakeResource resource)
     {
-        _freeResources.Remove(resource);
-        _busyResources.Remove(resource);
+        ResourceType resourceType = GetResourceType(resource);
+        _freeResources[resourceType].Remove(resource);
+        _busyResources[resourceType].Remove(resource);
     }
 
-    public ITakeResource GetAvailableResource()
+    public ITakeResource GetAvailableResource(ResourceType resourceType)
     {
-        if (_freeResources.Count == 0)
+        if (_freeResources[resourceType].Count == 0)
             ScanForNewResources();
 
-        foreach (var resource in _freeResources)
+        foreach (var resource in _freeResources[resourceType])
         {
-            if (resource != null && IsResourceAccessible(resource))
+            if (resource != null && IsResourceAccessible(resource) && GetResourceType(resource) == resourceType)
             {
-                _freeResources.Remove(resource);
-                _busyResources.Add(resource);
+                _freeResources[resourceType].Remove(resource);
+                _busyResources[resourceType].Add(resource);
 
                 return resource;
             }
@@ -46,16 +58,18 @@ public class ResourceHub : MonoBehaviour
     {
         if (resource != null)
         {
-            _busyResources.Remove(resource);
+            ResourceType resourceType = GetResourceType(resource);
+            _busyResources[resourceType].Remove(resource);
 
             if (resource is MonoBehaviour behaviour && behaviour.gameObject.activeInHierarchy)
-                _freeResources.Add(resource);
+                _freeResources[resourceType].Add(resource);
         }
     }
 
     public void MarkResourceAsDelivered(ITakeResource resource)
     {
-        _busyResources.Remove(resource);
+        ResourceType resourceType = GetResourceType(resource);
+        _busyResources[resourceType].Remove(resource);
 
         if (resource is Resource resourceObj && _resourcePool != null)
             _resourcePool.ReturnResource(resourceObj);
@@ -68,8 +82,16 @@ public class ResourceHub : MonoBehaviour
             var activeResources = _resourcePool.ActiveResourceList;
 
             foreach (var resource in activeResources)
-                if (_busyResources.Contains(resource) == false && _freeResources.Contains(resource) == false && IsResourceInRange(resource))
+            {
+                ResourceType resourceType = GetResourceType(resource);
+
+                if (_busyResources[resourceType].Contains(resource) == false &&
+                    _freeResources[resourceType].Contains(resource) == false &&
+                    IsResourceInRange(resource))
+                {
                     RegisterResource(resource);
+                }
+            }
         }
     }
 
@@ -86,4 +108,17 @@ public class ResourceHub : MonoBehaviour
     }
 
     private bool IsResourceAccessible(ITakeResource resource) => true;
+
+    private ResourceType GetResourceType(ITakeResource resource)
+    {
+        if (resource is MonoBehaviour behaviour)
+        {
+            var resourceComponent = behaviour.GetComponent<Resource>();
+
+            if (resourceComponent != null)
+                return resourceComponent.Type;
+        }
+
+        return ResourceType.Nothing; 
+    }
 }
