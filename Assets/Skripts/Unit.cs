@@ -1,9 +1,13 @@
 using System;
+<<<<<<< HEAD
 using System.Collections;
+=======
+>>>>>>> parent of ba2fb3c (add mover)
 using UnityEngine;
 
 public class Unit : MonoBehaviour
 {
+<<<<<<< HEAD
 <<<<<<< HEAD:Assets/Skripts/Unit/Unit.cs
     [Header("Settings")]
     [SerializeField] private bool _isBuilder = false;
@@ -16,6 +20,8 @@ public class Unit : MonoBehaviour
     public bool IsAvailable => !_isBusy;
     public bool IsBuilder => _isBuilder;
 =======
+=======
+>>>>>>> parent of ba2fb3c (add mover)
     private const float MinDistance = 0.5f;
 
     [SerializeField] private float _moveSpeed = 5f;
@@ -34,7 +40,10 @@ public class Unit : MonoBehaviour
     public event Action<Unit> BecameAvailable;
     public event Action<Unit> BecameBusy;
     public event Action<Unit, ITakeResource> ResourceDelivered;
+<<<<<<< HEAD
 >>>>>>> parent of ba2fb3c (add mover):Assets/Skripts/Unit.cs
+=======
+>>>>>>> parent of ba2fb3c (add mover)
 
     private void Update()
     {
@@ -42,6 +51,7 @@ public class Unit : MonoBehaviour
             MoveToTarget();
     }
 
+<<<<<<< HEAD
     public void Initialize(Base unitBase)
     {
 <<<<<<< HEAD:Assets/Skripts/Unit/Unit.cs
@@ -57,6 +67,10 @@ public class Unit : MonoBehaviour
     {
         if (_isBusy) return;
 =======
+=======
+    public void AssignToCollectResource(ITakeResource resource, Vector3 basePosition)
+    {
+>>>>>>> parent of ba2fb3c (add mover)
         if (IsAvailable == false)
             return;
 
@@ -125,6 +139,7 @@ public class Unit : MonoBehaviour
             ResourceDelivered?.Invoke(this, _carriedResource);
             _carriedResource = null;
         }
+<<<<<<< HEAD
 >>>>>>> parent of ba2fb3c (add mover):Assets/Skripts/Unit.cs
 
         _isBusy = true;
@@ -162,5 +177,10 @@ public class Unit : MonoBehaviour
         // Логика строительства базы
         _isBusy = false;
         onComplete?.Invoke(this);
+=======
+
+        _hasResource = false;
+        BecameAvailable?.Invoke(this);
+>>>>>>> parent of ba2fb3c (add mover)
     }
 }

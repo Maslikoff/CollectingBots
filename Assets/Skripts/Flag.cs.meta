@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Skripts/Flag.cs.meta
 guid: fa8b676321be99f4db10deb325a19d0c
+========
+guid: 2063c2b4dd849b948aa49b4d06b82d27
+>>>>>>>> parent of ba2fb3c (add mover):Assets/Skripts/Resources/ResourceFactory.cs.meta
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2

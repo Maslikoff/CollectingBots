@@ -479,8 +479,11 @@ GameObject:
   - component: {fileID: 2303303557598384316}
   - component: {fileID: 4369233546274414589}
 <<<<<<< HEAD
+<<<<<<< HEAD
   - component: {fileID: 554386129818577819}
   - component: {fileID: 2823888584325349155}
+=======
+>>>>>>> parent of ba2fb3c (add mover)
 =======
 >>>>>>> parent of ba2fb3c (add mover)
   m_Layer: 0
@@ -571,6 +574,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _scanRadius: 20
   _resourcePool: {fileID: 0}
+<<<<<<< HEAD
+>>>>>>> parent of ba2fb3c (add mover)
+=======
 >>>>>>> parent of ba2fb3c (add mover)
 --- !u!114 &4369233546274414589
 MonoBehaviour:
@@ -585,6 +591,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _base: {fileID: 8722527675366325217}
+<<<<<<< HEAD
 <<<<<<< HEAD
   _resourcesText: {fileID: 7570146771102655759}
   _resourceTypeText: {fileID: 8416288473221932941}
@@ -874,6 +881,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+=======
+  _resourcesText: {fileID: 0}
+>>>>>>> parent of ba2fb3c (add mover)
 =======
   _resourcesText: {fileID: 0}
 >>>>>>> parent of ba2fb3c (add mover)

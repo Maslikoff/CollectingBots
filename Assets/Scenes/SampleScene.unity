@@ -377,6 +377,7 @@ Transform:
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 <<<<<<< HEAD
+<<<<<<< HEAD
 --- !u!114 &1414921176
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -434,6 +435,8 @@ Transform:
   m_Children: []
   m_Father: {fileID: 467670102}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+=======
+>>>>>>> parent of ba2fb3c (add mover)
 =======
 >>>>>>> parent of ba2fb3c (add mover)
 --- !u!1 &1639934015
@@ -660,6 +663,7 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
 <<<<<<< HEAD
+<<<<<<< HEAD
     - target: {fileID: 319785025088673956, guid: 84aca8fadfec20347b2a15fa535b9f8c, type: 3}
       propertyPath: m_Layer
       value: 7
@@ -734,10 +738,13 @@ PrefabInstance:
       objectReference: {fileID: 0}
 =======
 >>>>>>> parent of ba2fb3c (add mover)
+=======
+>>>>>>> parent of ba2fb3c (add mover)
     - target: {fileID: 1902154596681475545, guid: 84aca8fadfec20347b2a15fa535b9f8c, type: 3}
       propertyPath: m_Name
       value: BAZA
       objectReference: {fileID: 0}
+<<<<<<< HEAD
 <<<<<<< HEAD
     - target: {fileID: 1902154596681475545, guid: 84aca8fadfec20347b2a15fa535b9f8c, type: 3}
       propertyPath: m_Layer
@@ -793,10 +800,13 @@ PrefabInstance:
       objectReference: {fileID: 0}
 =======
 >>>>>>> parent of ba2fb3c (add mover)
+=======
+>>>>>>> parent of ba2fb3c (add mover)
     - target: {fileID: 2303303557598384316, guid: 84aca8fadfec20347b2a15fa535b9f8c, type: 3}
       propertyPath: _resourcePool
       value: 
       objectReference: {fileID: 1414921174}
+<<<<<<< HEAD
 <<<<<<< HEAD
     - target: {fileID: 3572454363294444472, guid: 84aca8fadfec20347b2a15fa535b9f8c, type: 3}
       propertyPath: m_AnchorMax.y
@@ -966,11 +976,19 @@ PrefabInstance:
     - target: {fileID: 3935106766399488707, guid: 84aca8fadfec20347b2a15fa535b9f8c, type: 3}
       propertyPath: m_Camera
       value: 
+=======
+    - target: {fileID: 3935106766399488707, guid: 84aca8fadfec20347b2a15fa535b9f8c, type: 3}
+      propertyPath: m_Camera
+      value: 
+>>>>>>> parent of ba2fb3c (add mover)
       objectReference: {fileID: 963194227}
     - target: {fileID: 4369233546274414589, guid: 84aca8fadfec20347b2a15fa535b9f8c, type: 3}
       propertyPath: _resourcesText
       value: 
       objectReference: {fileID: 3831060539169114045}
+<<<<<<< HEAD
+>>>>>>> parent of ba2fb3c (add mover)
+=======
 >>>>>>> parent of ba2fb3c (add mover)
     - target: {fileID: 8328200561881072480, guid: 84aca8fadfec20347b2a15fa535b9f8c, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1053,6 +1071,7 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 467670101}
 <<<<<<< HEAD
+<<<<<<< HEAD
     - target: {fileID: 8722527675366325217, guid: 84aca8fadfec20347b2a15fa535b9f8c, type: 3}
       propertyPath: _mapBounds
       value: 
@@ -1102,10 +1121,14 @@ PrefabInstance:
 =======
     m_RemovedComponents: []
 >>>>>>> parent of ba2fb3c (add mover)
+=======
+    m_RemovedComponents: []
+>>>>>>> parent of ba2fb3c (add mover)
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 84aca8fadfec20347b2a15fa535b9f8c, type: 3}
+<<<<<<< HEAD
 <<<<<<< HEAD
 --- !u!1001 &3988082434257497182
 PrefabInstance:
@@ -1169,6 +1192,8 @@ PrefabInstance:
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c0913e1f949106744a369a0c90d9b487, type: 3}
 =======
+=======
+>>>>>>> parent of ba2fb3c (add mover)
 --- !u!114 &3831060539169114045 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7570146771102655759, guid: 84aca8fadfec20347b2a15fa535b9f8c, type: 3}
@@ -1180,6 +1205,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+<<<<<<< HEAD
+>>>>>>> parent of ba2fb3c (add mover)
+=======
 >>>>>>> parent of ba2fb3c (add mover)
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
