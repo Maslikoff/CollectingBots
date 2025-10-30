@@ -1,108 +1,84 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(UnitControll))]
+[RequireComponent(typeof(FlagControll))]
+[RequireComponent(typeof(BaseBuilder))]
+[RequireComponent(typeof(UnitFactory))]
+[RequireComponent(typeof(ResourceCollector))]
 public class Base : MonoBehaviour
 {
-    [SerializeField] private UnitPool _unitPool;
+    [Header("Dependencies")]
     [SerializeField] private ResourceHub _resourceHub;
-    [SerializeField] private int _initialUnits = 3;
-    [SerializeField] private float _scanInterval = 3f;
 
-    private List<Unit> _availableUnits;
-    private int _totalResources = 0;
-    private Coroutine _scanCoroutine;
+    private UnitControll _unitControll;
+    private FlagControll _flagControll;
+    private BaseBuilder _baseBuilder;
+    private UnitFactory _unitFactory;
+    private ResourceCollector _resourceCollector;
 
-    public int TotalResources => _totalResources;
+    public int TotalResources => _resourceHub.TotalResources;
+    public int UnitsCount => _unitControll.UnitsCount;
+    public bool HasFlag => _flagControll.HasFlag;
+    public bool IsBuildingNewBase => _baseBuilder.IsBuilding;
 
     public event Action<int> ResourcesChanged;
+    public event Action<bool> BuildingModeChanged;
+
+    private void Awake()
+    {
+        _unitControll = GetComponent<UnitControll>();
+        _flagControll = GetComponent<FlagControll>();
+        _baseBuilder = GetComponent<BaseBuilder>();
+        _unitFactory = GetComponent<UnitFactory>();
+        _resourceCollector = GetComponent<ResourceCollector>();
+    }
 
     private void Start()
     {
-        _availableUnits = new List<Unit>();
+        InitializeComponents();
 
-        if (_unitPool != null)
-        {
-            for (int i = 0; i < _initialUnits; i++)
-            {
-                Unit unit = _unitPool.GetAvailableUnit();
-                SetupUnitEvents(unit);
-                _availableUnits.Add(unit);
-            }
-        }
-
-        ResourcesChanged?.Invoke(_totalResources);
-
-        _scanCoroutine = StartCoroutine(ScanForResourcesRoutine());
+        ResourcesChanged?.Invoke(TotalResources);
     }
+
+    private void Update()
+    {
+        if (IsBuildingNewBase == false)
+            _unitFactory.UpdateProduction();
+        else
+            _baseBuilder.UpdateBuilding();
+    }
+
+    public void PlaceFlag(Vector3 position)
+    {
+        _flagControll.PlaceFlag(position);
+    }
+
+    public void AddUnit(Unit unit)
+    {
+        _unitControll.AddUnit(unit);
+    }
+
+    private void InitializeComponents()
+    {
+       _unitControll.Initialize(_resourceHub);
+       _baseBuilder.Initialize(_unitControll, _resourceHub, _flagControll);
+       _unitFactory.Initialize(_unitControll, _resourceHub);
+       _resourceCollector.Initialize(_unitControll, _resourceHub);
+
+        _resourceHub.ResourcesChanged += OnResourcesChanged;
+        _flagControll.FlagPlaced += OnFlagPlaced;
+        _baseBuilder.BuildingModeChanged += OnBuildingModeChanged;
+    }
+
+    private void OnResourcesChanged(int resources) => ResourcesChanged?.Invoke(resources);
+    private void OnFlagPlaced(Vector3 position) => _baseBuilder.StartBuilding();
+    private void OnBuildingModeChanged(bool isBuilding) => BuildingModeChanged?.Invoke(isBuilding);
 
     private void OnDestroy()
     {
-        if (_scanCoroutine != null)
-            StopCoroutine(_scanCoroutine);
-    }
-
-    private void SetupUnitEvents(Unit unit)
-    {
-        unit.BecameAvailable += OnUnitBecameAvailable;
-        unit.BecameBusy += OnUnitBecameBusy;
-        unit.ResourceDelivered += OnResourceDelivered;
-    }
-
-    private IEnumerator ScanForResourcesRoutine()
-    {
-        var wait = new WaitForSeconds(_scanInterval);
-
-        while (enabled)
-        {
-            yield return wait;
-
-            AssignUnitsToResources();
-        }
-    }
-
-    public void AddResource()
-    {
-        _totalResources++;
-
-        ResourcesChanged?.Invoke(_totalResources);
-    }
-
-    public void OnUnitBecameAvailable(Unit unit)
-    {
-        if (_availableUnits.Contains(unit) == false)
-            _availableUnits.Add(unit);
-    }
-
-    public void OnUnitBecameBusy(Unit unit)
-    {
-        _availableUnits.Remove(unit);
-    }
-
-    private void AssignUnitsToResources()
-    {
-        if (_availableUnits.Count == 0 || _resourceHub == null)
-            return;
-
-        foreach (Unit unit in _availableUnits.ToArray())
-        {
-            if (unit.IsAvailable)
-            {
-                ITakeResource resource = _resourceHub.GetAvailableResource();
-
-                if (resource != null)
-                {
-                    unit.AssignToCollectResource(resource, transform.position);
-                    _availableUnits.Remove(unit);
-                }
-            }
-        }
-    }
-
-    private void OnResourceDelivered(Unit unit, ITakeResource resource)
-    {
-        _resourceHub.MarkResourceAsDelivered(resource);
-        AddResource();
+        _resourceHub.ResourcesChanged -= OnResourcesChanged;
+        _flagControll.FlagPlaced -= OnFlagPlaced;
+        _baseBuilder.BuildingModeChanged -= OnBuildingModeChanged;
     }
 }

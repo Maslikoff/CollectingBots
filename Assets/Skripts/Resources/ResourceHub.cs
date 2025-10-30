@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class ResourceHub : MonoBehaviour
@@ -8,8 +7,52 @@ public class ResourceHub : MonoBehaviour
     [SerializeField] private float _scanRadius = 20f;
     [SerializeField] private ResourcePool _resourcePool;
 
+    private List<Resource> _collectedResources = new List<Resource>();
+    private int _totalResources = 0;
+
     private HashSet<ITakeResource> _freeResources = new HashSet<ITakeResource>();
     private HashSet<ITakeResource> _busyResources = new HashSet<ITakeResource>();
+
+    public int TotalResources => _totalResources;
+    public IReadOnlyList<Resource> CollectedResources => _collectedResources;
+
+    public event Action<int> ResourcesChanged;
+
+    public void AddResource(Resource resource)
+    {
+        if (resource == null)
+            return;
+
+        _collectedResources.Add(resource);
+        _totalResources++;
+
+        ResourcesChanged?.Invoke(_totalResources);
+
+        if (_resourcePool != null)
+            _resourcePool.ReturnResource(resource);
+    }
+
+    public bool TrySpendResources(int amount)
+    {
+        if (_totalResources < amount)
+            return false;
+
+        _totalResources -= amount;
+
+        int resourcesToRemove = Math.Min(amount, _collectedResources.Count);
+        _collectedResources.RemoveRange(0, resourcesToRemove);
+
+        ResourcesChanged?.Invoke(_totalResources);
+
+        return true;
+    }
+
+    public void ResetResources()
+    {
+        _collectedResources.Clear();
+        _totalResources = 0;
+        ResourcesChanged?.Invoke(0);
+    }
 
     public void RegisterResource(ITakeResource resource)
     {
@@ -25,12 +68,11 @@ public class ResourceHub : MonoBehaviour
 
     public ITakeResource GetAvailableResource()
     {
-        if (_freeResources.Count == 0)
-            ScanForNewResources();
+        ScanForNewResources();
 
         foreach (var resource in _freeResources)
         {
-            if (resource != null && IsResourceAccessible(resource))
+            if (resource != null && IsResourceAccessible(resource) && IsResourceInRange(resource))
             {
                 _freeResources.Remove(resource);
                 _busyResources.Add(resource);
@@ -44,13 +86,8 @@ public class ResourceHub : MonoBehaviour
 
     public void ReturnResource(ITakeResource resource)
     {
-        if (resource != null)
-        {
-            _busyResources.Remove(resource);
-
-            if (resource is MonoBehaviour behaviour && behaviour.gameObject.activeInHierarchy)
-                _freeResources.Add(resource);
-        }
+        if (resource != null && _busyResources.Contains(resource) == false && _freeResources.Contains(resource) == false)
+            _freeResources.Add(resource);
     }
 
     public void MarkResourceAsDelivered(ITakeResource resource)
@@ -66,10 +103,16 @@ public class ResourceHub : MonoBehaviour
         if (_resourcePool != null)
         {
             var activeResources = _resourcePool.ActiveResourceList;
+            int registeredCount = 0;
 
             foreach (var resource in activeResources)
+            {
                 if (_busyResources.Contains(resource) == false && _freeResources.Contains(resource) == false && IsResourceInRange(resource))
+                {
                     RegisterResource(resource);
+                    registeredCount++;
+                }
+            }
         }
     }
 
@@ -81,7 +124,6 @@ public class ResourceHub : MonoBehaviour
 
             return distance <= _scanRadius;
         }
-
         return true;
     }
 

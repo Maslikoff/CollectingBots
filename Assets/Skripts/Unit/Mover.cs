@@ -26,7 +26,6 @@ public class Mover : MonoBehaviour
         _targetPosition = new Vector3(targetPosition.x, transform.position.y, targetPosition.z);
         _isMoving = true;
         ReachedTarget = OnReachedTarget;
-        Debug.Log($"Moving to: {targetPosition}");
     }
 
     private void MoveToTarget()

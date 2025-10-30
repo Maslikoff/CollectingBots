@@ -5,23 +5,51 @@ public class BaseView : MonoBehaviour
 {
     [SerializeField] private Base _base;
     [SerializeField] private TextMeshProUGUI _resourcesText;
+    [SerializeField] private TextMeshProUGUI _modeText;
+    [SerializeField] private GameObject _flagIndicator;
 
     private void Start()
     {
-        _resourcesText.text = _base.TotalResources.ToString();
-
+        UpdateView();
         _base.ResourcesChanged += OnResourcesChanged;
-        OnResourcesChanged(_base.TotalResources);
+        _base.BuildingModeChanged += OnBuildingModeChanged;
     }
 
     private void OnDestroy()
     {
         _base.ResourcesChanged -= OnResourcesChanged;
+        _base.BuildingModeChanged -= OnBuildingModeChanged;
     }
 
     private void OnResourcesChanged(int newResourcesCount)
     {
-        _resourcesText.text = newResourcesCount.ToString();
-        _resourcesText.text = _base.TotalResources.ToString();
+        UpdateView();
+    }
+
+    private void OnBuildingModeChanged(bool isBuildingMode)
+    {
+        UpdateView();
+    }
+
+    private void UpdateView()
+    {
+        _resourcesText.text = $"Resources: {_base.TotalResources}\nUnits: {_base.UnitsCount}";
+
+        if (_base.IsBuildingNewBase)
+        {
+            _modeText.text = "MODE: BUILDING BASE";
+            _modeText.color = Color.yellow;
+
+            if (_flagIndicator != null)
+                _flagIndicator.SetActive(true);
+        }
+        else
+        {
+            _modeText.text = "MODE: CREATING UNITS";
+            _modeText.color = Color.green;
+
+            if (_flagIndicator != null)
+                _flagIndicator.SetActive(false);
+        }
     }
 }

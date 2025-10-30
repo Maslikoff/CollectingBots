@@ -10,9 +10,9 @@ public class ResourcePool : ObjectPool<Resource>
 
     private List<ITakeResource> _activeResources;
     private Coroutine _spawnCoroutine;
-    private ResourceHub _resourceFactory;
+    private ResourceHub _resourceHub;
 
-    public List<ITakeResource> ActiveResourceList => new List<ITakeResource>(_activeResources);
+    public List<ITakeResource> ActiveResourceList => _activeResources != null ? new List<ITakeResource>(_activeResources) : new List<ITakeResource>();
 
     protected override void Awake()
     {
@@ -31,17 +31,19 @@ public class ResourcePool : ObjectPool<Resource>
     protected override void OnObjectGet(Resource resource)
     {
         base.OnObjectGet(resource);
-
-        _resourceFactory?.RegisterResource(resource);
         _activeResources.Add(resource);
+
+        if (_resourceHub != null)
+            _resourceHub?.RegisterResource(resource);
     }
 
     protected override void OnObjectReturn(Resource resource)
     {
         base.OnObjectReturn(resource);
-
-        _resourceFactory?.UnregisterResource(resource);
         _activeResources.Remove(resource);
+
+        if (_resourceHub != null)
+            _resourceHub?.UnregisterResource(resource);
     }
 
     protected override void ResetObject(Resource resource)
@@ -75,6 +77,7 @@ public class ResourcePool : ObjectPool<Resource>
         while (enabled)
         {
             yield return wait;
+
             SpawnResource();
         }
     }
