@@ -1,6 +1,4 @@
-using System;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 public class BaseInputHandler : MonoBehaviour
 {
@@ -11,9 +9,6 @@ public class BaseInputHandler : MonoBehaviour
     private Camera _mainCamera;
     private Base _selectedBase;
 
-    public static event Action<Base> BaseSelected;
-    public static event Action<Vector3> GroundClicked;
-
     private void Start()
     {
         _mainCamera = Camera.main;
@@ -23,22 +18,10 @@ public class BaseInputHandler : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
             HandleMouseClick();
-
-        if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape))
-            DeselectBase();
-    }
-
-    public void DeselectBase()
-    {
-        if (_selectedBase != null)
-            _selectedBase = null;
     }
 
     private void HandleMouseClick()
     {
-        if (EventSystem.current.IsPointerOverGameObject()) 
-            return;
-
         Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
@@ -48,33 +31,15 @@ public class BaseInputHandler : MonoBehaviour
 
             if (baseComponent != null)
             {
-                SelectBase(baseComponent);
-
+                _selectedBase = baseComponent;
                 return;
             }
         }
 
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity, _groundLayerMask))
+        if (_selectedBase != null && Physics.Raycast(ray, out hit, Mathf.Infinity, _groundLayerMask))
         {
-            GroundClicked?.Invoke(hit.point);
-            _buildSystem.TryCreateBuildSite(hit.point);
-            DeselectBase();
-        }
-    }
-
-    private void SelectBase(Base baseComponent)
-    {
-        _selectedBase = baseComponent;
-        BaseSelected?.Invoke(_selectedBase);
-    }
-
-    private void OnDrawGizmos()
-    {
-        if (_mainCamera != null && Input.GetMouseButton(0))
-        {
-            Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition);
-            Gizmos.color = Color.red;
-            Gizmos.DrawRay(ray.origin, ray.direction * 100f);
+            _selectedBase.PlaceFlag(hit.point);
+            _selectedBase = null;
         }
     }
 }

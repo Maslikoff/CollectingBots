@@ -7,225 +7,136 @@ using Random = UnityEngine.Random;
 
 public class Base : MonoBehaviour
 {
-    [Header("Dependencies")]
-    [SerializeField] private UnitFactory _unitFactory;
-    [SerializeField] private ResourceCollector _resourceCollector;
-    [SerializeField] private ResourceHub _resourceHub;
-    [SerializeField] private BaseFlagControll _flagControll;
-    [SerializeField] private BaseBuilder _baseBuilder;
-
     [Header("Settings")]
-    [SerializeField] private ResourceType _allowedResources = ResourceType.Nothing;
-    [SerializeField] private int _initialUnits = 3;
-    [SerializeField] private float _scanInterval = 1f;
+    [SerializeField] private int _resourcesForNewUnit = 3;
+    [SerializeField] private int _resourcesForNewBase = 5;
+    [SerializeField] private int _minUnitsForNewBase = 2;
 
-    private List<Unit> _availableUnits;
-    private Transform _transform;
-    private Coroutine _scanCoroutine;
+    [Header("Dependencies")]
+    [SerializeField] private UnitPool _unitPool;
+    [SerializeField] private ResourcePool _resourcePool;
+    [SerializeField] private Flag _flagPrefab;
+    [SerializeField] private Base _basePrefab;
+    [SerializeField] private MapBounds _mapBounds;
 
-    public int TotalResources => _resourceCollector.TotalResources;
-    public int AvailableResources => _resourceCollector.AvailableResources;
-    public int AvailableUnitsCount => _availableUnits.Count;
-    public ResourceType AllowedResources => _allowedResources;
-    public bool HasFlag => _flagControll.HasFlag;
-    public Vector3 FlagPosition => _flagControll.FlagPosition;
-    public List<Unit> AvailableUnits => _availableUnits;
+    private List<Unit> _units = new List<Unit>();
+    private List<Resource> _collectedResources = new List<Resource>();
+    private Flag _currentFlag;
+    private bool _isBuildingNewBase = false;
+    private int _totalResources = 0;
 
-    public event Action<ResourceType> ResourceTypeChanged;
-    public event Action<int> ResourcesChanged;
-    public event Action<Vector3> BasePositionChanged;
+    public int TotalResources => _totalResources;
+    public int UnitsCount => _units.Count;
+    public bool HasFlag => _currentFlag != null;
 
     private void Start()
     {
-        _availableUnits = new List<Unit>();
-        _transform = transform;
-
-        InitializeComponents();
-        CreateInitialUnits();
-
-        _baseBuilder.Initialize(this);
-
-        _scanCoroutine = StartCoroutine(ScanForResourcesRoutine());
+        CreateInitialUnit();
     }
 
-    private void OnDestroy()
+    private void CreateInitialUnit()
     {
-        if (_scanCoroutine != null)
-            StopCoroutine(_scanCoroutine);
-
-        _unitFactory.Cleanup();
+        CreateNewUnit();
     }
 
-    public void SetAllowedResource(ResourceType newResourceType)
+    private void Update()
     {
-        if (_allowedResources != newResourceType)
+        if (!_isBuildingNewBase)
         {
-            _allowedResources = newResourceType;
-            ResourceTypeChanged?.Invoke(_allowedResources);
-            UpdateUnitsResourceType();
-        }
-    }
-
-    public void OnBaseMoved(Vector3 newPosition)
-    {
-        BasePositionChanged?.Invoke(newPosition);
-
-        ReturnAllUnitsToBase(newPosition);
-        RedirectBusyUnits(newPosition);
-    }
-
-    public bool SpendResources(int amount)
-    {
-        return _resourceCollector.TrySpendResources(amount);
-    }
-
-    public void AddResources(int amount)
-    {
-        for (int i = 0; i < amount; i++)
-            _resourceCollector.AddResource();
-    }
-
-    public void RemoveUnit(Unit unit)
-    {
-        AvailableUnits.Remove(unit);
-    }
-
-    public void AddUnit(Unit unit)
-    {
-        AvailableUnits.Add(unit);
-    }
-
-    public bool SpendResourcesForBuilding(int amount) => _resourceCollector.TrySpendResourcesForBuilding(amount);
-
-    private void ReturnAllUnitsToBase(Vector3 basePosition)
-    {
-        foreach (Unit unit in _availableUnits)
-            if (unit.IsAvailable && unit.IsBusy == false)
-                unit.MoveToPosition(basePosition);
-    }
-
-    private void RedirectBusyUnits(Vector3 basePosition)
-    {
-        foreach (Unit unit in _availableUnits)
-            if (unit.IsBusy)
-                unit.ReturnToBase(basePosition);
-    }
-
-    private void UpdateUnitsResourceType()
-    {
-        foreach (Unit unit in _availableUnits)
-            if (unit is IResourceTypeListener resourceListener)
-                resourceListener.OnResourceTypeChanged(_allowedResources);
-    }
-
-    private void InitializeComponents()
-    {
-        _unitFactory.UnitCreated += OnUnitCreated;
-        _resourceCollector.ResourcesChanged += OnResourcesChanged;
-        _resourceCollector.ResourcesChanged += (resources) => ResourcesChanged?.Invoke(resources);
-        _flagControll.FlagPlaced += OnFlagPlaced;
-    }
-
-    private void CreateInitialUnits()
-    {
-        for (int i = 0; i < _initialUnits; i++)
-            CreateNewUnit();
-    }
-
-    private IEnumerator ScanForResourcesRoutine()
-    {
-        var wait = new WaitForSeconds(_scanInterval);
-
-        while (enabled)
-        {
-            yield return wait;
-            AssignUnitsToResources();
-            TryCreateNewUnit();
-        }
-    }
-
-    private void AssignUnitsToResources()
-    {
-        if (_availableUnits.Count == 0 || _resourceHub == null)
-            return;
-
-        if (_allowedResources == ResourceType.Nothing)
-            return;
-
-        if (_baseBuilder.IsBuilding) 
-            return;
-
-        foreach (Unit unit in _availableUnits.Where(unit => unit.IsAvailable).ToList())
-        {
-            ITakeResource resource = _resourceHub.GetAvailableResource(_allowedResources);
-
-            if (resource != null)
+            // Механика 1: Создание нового юнита за 3 ресурса
+            if (_totalResources >= _resourcesForNewUnit)
             {
-                unit.AssignToCollectResource(resource, transform.position);
-                _availableUnits.Remove(unit);
-            }
-            else
-            {
-                break;
+                _totalResources -= _resourcesForNewUnit;
+                CreateNewUnit();
             }
         }
+        else
+        {
+            // Механика 4: Строительство новой базы за 5 ресурсов
+            if (_totalResources >= _resourcesForNewBase && _units.Count > _minUnitsForNewBase)
+            {
+                _totalResources -= _resourcesForNewBase;
+                SendUnitToBuildBase();
+            }
+        }
+    }
+
+    public void AddResource(Resource resource)
+    {
+        _collectedResources.Add(resource);
+        _totalResources++;
+
+        if (_resourcePool != null)
+            _resourcePool.ReturnResource(resource);
     }
 
     private void CreateNewUnit()
     {
-        Vector3 spawnPosition = GetSpawnPosition();
-        Unit unit = _unitFactory.CreateUnit(spawnPosition);
-
-        if (unit is IResourceTypeListener resourceListener)
-            resourceListener.OnResourceTypeChanged(_allowedResources);
-
-        BasePositionChanged += unit.ReturnToBase;
-
-        _unitFactory.SetupUnitEvents(unit, OnUnitBecameAvailable, OnUnitBecameBusy, OnResourceDelivered);
-        _availableUnits.Add(unit);
+        Unit newUnit = _unitPool.GetObject();
+        newUnit.Initialize(this);
+        _units.Add(newUnit);
     }
 
-    private void TryCreateNewUnit()
+    private void SendUnitToBuildBase()
     {
-        if (_unitFactory.CanCreateUnit(AvailableResources))
-            if (_resourceCollector.TrySpendResources(_unitFactory.UnitCost))
-                CreateNewUnit();
+        if (_units.Count == 0 || _currentFlag == null) return;
+
+        // Находим свободного юнита-строителя
+        Unit builder = _units.Find(unit => unit.IsAvailable && unit.IsBuilder);
+        if (builder == null) return;
+
+        // Механика 4: Отправляем юнита строить новую базу
+        builder.BuildNewBase(_currentFlag.transform.position, OnNewBaseBuilt);
+        _units.Remove(builder);
     }
 
-    private Vector3 GetSpawnPosition() => transform.position + new Vector3(Random.Range(-2f, 2f), 0, Random.Range(-2f, 2f));
-
-    private void OnResourcesChanged(int availableResources)
+    private void OnNewBaseBuilt(Unit builder)
     {
-        ResourcesChanged?.Invoke(availableResources);
-        TryCreateNewUnit();
+        // Механика 5: Создаем новую базу и убираем флаг
+        Base newBase = Instantiate(_basePrefab, builder.transform.position, Quaternion.identity);
+        newBase.CreateInitialUnit();
+
+        // Передаем строителя новой базе
+        newBase.AddUnit(builder);
+        builder.SetBase(newBase);
+
+        RemoveFlag();
+        _isBuildingNewBase = false;
     }
 
-    private void OnUnitCreated(Unit unit)
+    public void PlaceFlag(Vector3 position)
     {
-        if (unit is IResourceTypeListener resourceListener)
-            resourceListener.OnResourceTypeChanged(_allowedResources);
+        // Механика 3: Установка/перемещение флага
+        if (!_mapBounds.IsPositionInsideMap(position)) return;
+
+        if (_currentFlag == null)
+        {
+            _currentFlag = Instantiate(_flagPrefab, position, Quaternion.identity);
+        }
+        else
+        {
+            _currentFlag.transform.position = position;
+        }
+
+        _isBuildingNewBase = true;
     }
 
-    public void OnUnitBecameAvailable(Unit unit)
+    public void RemoveFlag()
     {
-        if (_availableUnits.Contains(unit) == false)
-            _availableUnits.Add(unit);
+        if (_currentFlag != null)
+        {
+            Destroy(_currentFlag.gameObject);
+            _currentFlag = null;
+        }
     }
 
-    public void OnUnitBecameBusy(Unit unit)
+    public void AddUnit(Unit unit)
     {
-        _availableUnits.Remove(unit);
+        _units.Add(unit);
     }
 
-    private void OnResourceDelivered(Unit unit, ITakeResource resource)
+    public void RemoveUnit(Unit unit)
     {
-        _resourceHub.MarkResourceAsDelivered(resource);
-        _resourceCollector.AddResource();
-        TryCreateNewUnit();
-    }
-
-    private void OnFlagPlaced(Vector3 position) 
-    {
-        OnBaseMoved(position);
+        _units.Remove(unit);
     }
 }

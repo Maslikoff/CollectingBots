@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class UnitFactory : MonoBehaviour
 {
-    [SerializeField] private UnitPool _unitPool;
+   /* [SerializeField] private UnitPool _unitPool;
     [SerializeField] private int _unitCost = 3;
 
     private List<Unit> _createdUnits = new List<Unit>();
@@ -43,5 +43,5 @@ public class UnitFactory : MonoBehaviour
     public void Cleanup()
     {
         _createdUnits.Clear();
-    }
+    }*/
 }

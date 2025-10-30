@@ -18,18 +18,6 @@ public class BaseFlagControll : MonoBehaviour
 
     public event Action<Vector3> FlagPlaced;
 
-    private void Start()
-    {
-        BaseInputHandler.BaseSelected += OnBaseSelected;
-        BaseInputHandler.GroundClicked += OnGroundClicked;
-    }
-
-    private void OnDestroy()
-    {
-        BaseInputHandler.BaseSelected -= OnBaseSelected;
-        BaseInputHandler.GroundClicked -= OnGroundClicked;
-    }
-
     public void TryPlaceFlag(Vector3 worldPosition)
     {
         Vector3 targetPosition = worldPosition;
@@ -40,7 +28,6 @@ public class BaseFlagControll : MonoBehaviour
         RemoveFlag();
 
         FlagPlaced?.Invoke(targetPosition);
-        _base?.OnBaseMoved(targetPosition);
     }
 
     private void CreateTemporaryFlag(Vector3 position)

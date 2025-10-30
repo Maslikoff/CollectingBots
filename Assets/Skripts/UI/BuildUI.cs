@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 public class BuildUI : MonoBehaviour
 {
-    [SerializeField] private Button _buildButton;
+   /* [SerializeField] private Button _buildButton;
     [SerializeField] private Button _cancelButton;
 
     private BaseBuilder _baseBuilder;
@@ -68,5 +68,5 @@ public class BuildUI : MonoBehaviour
     {
         _baseBuilder.CancelConstruction();
         Hide();
-    }
+    }*/
 }

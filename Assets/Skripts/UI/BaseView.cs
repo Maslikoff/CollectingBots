@@ -11,15 +11,6 @@ public class BaseView : MonoBehaviour
     {
         UpdateResourcesText();
         UpdateResourceTypeText();
-
-        _base.ResourcesChanged += OnResourcesChanged;
-        _base.ResourceTypeChanged += OnResourceTypeChanged;
-    }
-
-    private void OnDestroy()
-    {
-        _base.ResourcesChanged -= OnResourcesChanged;
-        _base.ResourceTypeChanged -= OnResourceTypeChanged;
     }
 
     private void OnResourcesChanged(int newResourcesCount)
@@ -39,6 +30,6 @@ public class BaseView : MonoBehaviour
 
     private void UpdateResourceTypeText()
     {
-        _resourceTypeText.text = $"{_base.AllowedResources}";
+        _resourceTypeText.text = $"{_base.TotalResources}";
     }
 }

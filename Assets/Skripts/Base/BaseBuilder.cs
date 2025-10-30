@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class BaseBuilder : MonoBehaviour
 {
-    [Header("Prefabs")]
+    /*[Header("Prefabs")]
     [SerializeField] private Flag _flagPrefab;
     [SerializeField] private Base _basePrefab;
     [SerializeField] private BuildUI _buildUIPrefab;
@@ -184,5 +184,5 @@ public class BaseBuilder : MonoBehaviour
 
         _isBuilding = false;
         _currentBuilder = null;
-    }
+    }*/
 }

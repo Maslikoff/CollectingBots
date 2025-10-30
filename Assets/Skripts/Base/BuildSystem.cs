@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class BuildSystem : MonoBehaviour
 {
-    [SerializeField] private BaseBuilder playerBase;
+   /* [SerializeField] private BaseBuilder playerBase;
 
     private BaseBuilder _currentBaseBuilder;
 
@@ -20,5 +20,5 @@ public class BuildSystem : MonoBehaviour
     public void OnCancelClicked()
     {
         _currentBaseBuilder?.CancelConstruction();
-    }
+    }*/
 }

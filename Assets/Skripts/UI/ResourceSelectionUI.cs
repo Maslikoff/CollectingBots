@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 public class ResourceSelectionUI : MonoBehaviour
 {
-    [SerializeField] private Button _woodButton;
+   /* [SerializeField] private Button _woodButton;
     [SerializeField] private Button _stoneButton;
     [SerializeField] private Button _metallButton;
     [SerializeField] private GameObject _buttonPanel;
@@ -59,5 +59,5 @@ public class ResourceSelectionUI : MonoBehaviour
                 _metallButton.interactable = false;
                 break;
         }
-    }
+    }*/
 }
