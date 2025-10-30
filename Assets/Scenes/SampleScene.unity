@@ -376,6 +376,7 @@ Transform:
   - {fileID: 923006159}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+<<<<<<< HEAD
 --- !u!114 &1414921176
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -433,6 +434,8 @@ Transform:
   m_Children: []
   m_Father: {fileID: 467670102}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+=======
+>>>>>>> parent of ba2fb3c (add mover)
 --- !u!1 &1639934015
 GameObject:
   m_ObjectHideFlags: 0
@@ -656,6 +659,7 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+<<<<<<< HEAD
     - target: {fileID: 319785025088673956, guid: 84aca8fadfec20347b2a15fa535b9f8c, type: 3}
       propertyPath: m_Layer
       value: 7
@@ -728,10 +732,13 @@ PrefabInstance:
       propertyPath: _buildUIPrefab
       value: 
       objectReference: {fileID: 0}
+=======
+>>>>>>> parent of ba2fb3c (add mover)
     - target: {fileID: 1902154596681475545, guid: 84aca8fadfec20347b2a15fa535b9f8c, type: 3}
       propertyPath: m_Name
       value: BAZA
       objectReference: {fileID: 0}
+<<<<<<< HEAD
     - target: {fileID: 1902154596681475545, guid: 84aca8fadfec20347b2a15fa535b9f8c, type: 3}
       propertyPath: m_Layer
       value: 7
@@ -784,10 +791,13 @@ PrefabInstance:
       propertyPath: m_enableAutoSizing
       value: 0
       objectReference: {fileID: 0}
+=======
+>>>>>>> parent of ba2fb3c (add mover)
     - target: {fileID: 2303303557598384316, guid: 84aca8fadfec20347b2a15fa535b9f8c, type: 3}
       propertyPath: _resourcePool
       value: 
       objectReference: {fileID: 1414921174}
+<<<<<<< HEAD
     - target: {fileID: 3572454363294444472, guid: 84aca8fadfec20347b2a15fa535b9f8c, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -952,13 +962,23 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+=======
+    - target: {fileID: 3935106766399488707, guid: 84aca8fadfec20347b2a15fa535b9f8c, type: 3}
+      propertyPath: m_Camera
+      value: 
+      objectReference: {fileID: 963194227}
+    - target: {fileID: 4369233546274414589, guid: 84aca8fadfec20347b2a15fa535b9f8c, type: 3}
+      propertyPath: _resourcesText
+      value: 
+      objectReference: {fileID: 3831060539169114045}
+>>>>>>> parent of ba2fb3c (add mover)
     - target: {fileID: 8328200561881072480, guid: 84aca8fadfec20347b2a15fa535b9f8c, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8328200561881072480, guid: 84aca8fadfec20347b2a15fa535b9f8c, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8328200561881072480, guid: 84aca8fadfec20347b2a15fa535b9f8c, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1032,6 +1052,7 @@ PrefabInstance:
       propertyPath: _unitPool
       value: 
       objectReference: {fileID: 467670101}
+<<<<<<< HEAD
     - target: {fileID: 8722527675366325217, guid: 84aca8fadfec20347b2a15fa535b9f8c, type: 3}
       propertyPath: _mapBounds
       value: 
@@ -1078,10 +1099,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 0}
+=======
+    m_RemovedComponents: []
+>>>>>>> parent of ba2fb3c (add mover)
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 84aca8fadfec20347b2a15fa535b9f8c, type: 3}
+<<<<<<< HEAD
 --- !u!1001 &3988082434257497182
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1143,6 +1168,19 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c0913e1f949106744a369a0c90d9b487, type: 3}
+=======
+--- !u!114 &3831060539169114045 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7570146771102655759, guid: 84aca8fadfec20347b2a15fa535b9f8c, type: 3}
+  m_PrefabInstance: {fileID: 3831060539169114044}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+>>>>>>> parent of ba2fb3c (add mover)
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

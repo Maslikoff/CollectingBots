@@ -1,8 +1,7 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ResourceHub : MonoBehaviour
+public class ResourceFactory : MonoBehaviour
 {
     [SerializeField] private float _scanRadius = 20f;
     [SerializeField] private ResourcePool _resourcePool;
@@ -83,6 +82,7 @@ public class ResourceHub : MonoBehaviour
 
             foreach (var resource in activeResources)
             {
+<<<<<<< HEAD:Assets/Skripts/Resources/ResourceHub.cs
                 ResourceType resourceType = GetResourceType(resource);
 
                 if (_busyResources[resourceType].Contains(resource) == false &&
@@ -91,23 +91,16 @@ public class ResourceHub : MonoBehaviour
                 {
                     RegisterResource(resource);
                 }
+=======
+                if (_busyResources.Contains(resource) == false && _freeResources.Contains(resource) == false)
+                    RegisterResource(resource);
+>>>>>>> parent of ba2fb3c (add mover):Assets/Skripts/Resources/ResourceFactory.cs
             }
         }
     }
 
-    private bool IsResourceInRange(ITakeResource resource)
-    {
-        if (resource is MonoBehaviour behaviour)
-        {
-            float distance = Vector3.Distance(transform.position, behaviour.transform.position);
-
-            return distance <= _scanRadius;
-        }
-
-        return true;
-    }
-
     private bool IsResourceAccessible(ITakeResource resource) => true;
+<<<<<<< HEAD:Assets/Skripts/Resources/ResourceHub.cs
 
     private ResourceType GetResourceType(ITakeResource resource)
     {
@@ -122,3 +115,6 @@ public class ResourceHub : MonoBehaviour
         return ResourceType.Nothing; 
     }
 }
+=======
+}
+>>>>>>> parent of ba2fb3c (add mover):Assets/Skripts/Resources/ResourceFactory.cs

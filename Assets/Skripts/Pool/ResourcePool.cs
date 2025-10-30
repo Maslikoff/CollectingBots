@@ -10,7 +10,11 @@ public class ResourcePool : ObjectPool<Resource>
 
     private List<ITakeResource> _activeResources;
     private Coroutine _spawnCoroutine;
+<<<<<<< HEAD
     private ResourceHub _resourceHub;
+=======
+    private ResourceFactory _resourceFactory;
+>>>>>>> parent of ba2fb3c (add mover)
 
     public List<ITakeResource> ActiveResourceList => new List<ITakeResource>(_activeResources);
 
