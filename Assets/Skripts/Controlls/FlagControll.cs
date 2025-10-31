@@ -20,12 +20,19 @@ public class FlagControll : MonoBehaviour
             return false;
 
         if (_currentFlag == null)
+        {
             _currentFlag = Instantiate(_flagPrefab, position, Quaternion.identity);
+            _currentFlag.gameObject.SetActive(true); 
+        }
         else
+        {
             _currentFlag.transform.position = position;
+            _currentFlag.gameObject.SetActive(true);
+        }
+
+        _currentFlag.SetColor(Color.red);
 
         FlagPlaced?.Invoke(position);
-
         return true;
     }
 

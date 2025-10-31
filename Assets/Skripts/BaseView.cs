@@ -33,7 +33,7 @@ public class BaseView : MonoBehaviour
 
     private void UpdateView()
     {
-        _resourcesText.text = $"Resources: {_base.TotalResources}\nUnits: {_base.UnitsCount}";
+        _resourcesText.text = $"Resources: {_base.TotalResources}";
 
         if (_base.IsBuildingNewBase)
         {

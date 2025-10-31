@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class UnitPool : ObjectPool<Unit>
@@ -26,4 +27,32 @@ public class UnitPool : ObjectPool<Unit>
     }
 
     public Unit GetAvailableUnit() => GetObject();
+
+    public void ClearPool()
+    {
+        ResetPool();
+
+        var poolField = typeof(ObjectPool<Unit>).GetField("_pool", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+        if (poolField != null)
+        {
+            var pool = (Queue<Unit>)poolField.GetValue(this);
+            pool.Clear();
+        }
+    }
+
+    public List<Unit> GetAllActiveUnits()
+    {
+        var activeUnits = new List<Unit>();
+
+        var activeObjectsField = typeof(ObjectPool<Unit>).GetField("_activeObjects", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+        if (activeObjectsField != null)
+        {
+            var activeObjects = (HashSet<Unit>)activeObjectsField.GetValue(this);
+            activeUnits.AddRange(activeObjects);
+        }
+
+        return activeUnits;
+    }
 }

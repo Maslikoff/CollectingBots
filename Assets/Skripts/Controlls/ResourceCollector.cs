@@ -24,7 +24,7 @@ public class ResourceCollector : MonoBehaviour
 
     private void AssignUnitsToResources()
     {
-        if (_unitManager.UnitsCount == 0 || _resourceHub == null) 
+        if (_unitManager.UnitsCount == 0 || _resourceHub == null)
             return;
 
         var availableUnits = _unitManager.GetAvailableUnits();

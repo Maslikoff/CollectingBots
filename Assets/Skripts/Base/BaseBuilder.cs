@@ -10,21 +10,23 @@ public class BaseBuilder : MonoBehaviour
     private UnitControll _unitControll;
     private ResourceHub _resourceHub;
     private FlagControll _flagController;
+    private Base _base;
 
     public bool IsBuilding { get; private set; }
 
     public event Action<bool> BuildingModeChanged;
 
-    public void Initialize(UnitControll unitManager, ResourceHub resourceHub, FlagControll flagController)
+    public void Initialize(UnitControll unitManager, ResourceHub resourceHub, FlagControll flagController, Base baseObj)
     {
         _unitControll = unitManager;
         _resourceHub = resourceHub;
         _flagController = flagController;
+        _base = baseObj;
     }
 
     public void StartBuilding()
     {
-        if (_flagController.HasFlag == false) 
+        if (_flagController.HasFlag == false)
             return;
 
         IsBuilding = true;
@@ -54,14 +56,40 @@ public class BaseBuilder : MonoBehaviour
         if (builder == null)
             return;
 
-        builder.BuildNewBase(_flagController.FlagPosition, OnNewBaseBuilt);
         _unitControll.RemoveUnit(builder);
+
+        builder.BuildNewBase(_flagController.FlagPosition, OnNewBaseBuilt);
     }
 
     private void OnNewBaseBuilt(Unit builder)
     {
-        Base newBase = Instantiate(_basePrefab, builder.transform.position, Quaternion.identity);
-        newBase.GetComponent<UnitControll>().AddUnit(builder);
+        if (_basePrefab == null && builder == null)
+        {
+            StopBuilding();
+            return;
+        }
+
+        Vector3 buildPosition = builder.transform.position;
+        buildPosition.y = 0f;
+
+        GameObject newBaseObject = Instantiate(_basePrefab.gameObject, builder.transform.position, Quaternion.identity);
+        Base newBase = newBaseObject.GetComponent<Base>();
+
+        if (newBase == null)
+        {
+            Destroy(newBaseObject);
+            StopBuilding();
+
+            return;
+        }
+
+        Unit[] allUnits = newBase.GetComponentsInChildren<Unit>(true);
+
+        foreach (Unit unit in allUnits)
+            unit.gameObject.SetActive(false);
+
+        newBase.SetAsNewBase();
+        newBase.AddUnit(builder);
         builder.SetBase(newBase);
 
         _flagController.RemoveFlag();

@@ -6,12 +6,15 @@ public class UnitFactory : MonoBehaviour
 
     private UnitControll _unitControll;
     private ResourceHub _resourceHub;
+    private Base _base;
+
     private bool _isProducing = false;
 
-    public void Initialize(UnitControll unitManager, ResourceHub resourceHub)
+    public void Initialize(UnitControll unitManager, ResourceHub resourceHub, Base baseObj)
     {
         _unitControll = unitManager;
         _resourceHub = resourceHub;
+        _base = baseObj;
     }
 
     public void UpdateProduction()
@@ -24,9 +27,21 @@ public class UnitFactory : MonoBehaviour
             if (_resourceHub.TrySpendResources(_resourcesForNewUnit))
             {
                 _isProducing = true;
-                _unitControll.CreateNewUnit();
-                _isProducing = false;
+                CreateUnitWithDelay();
             }
         }
+    }
+
+    private void CreateUnitWithDelay()
+    {
+        StartCoroutine(ProductionRoutine());
+    }
+
+    private System.Collections.IEnumerator ProductionRoutine()
+    {
+        yield return new WaitForSeconds(1f);
+
+        _unitControll.CreateNewUnit();
+        _isProducing = false;
     }
 }

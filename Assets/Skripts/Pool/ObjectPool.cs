@@ -4,7 +4,7 @@ using UnityEngine;
 public class ObjectPool<T> : MonoBehaviour where T : Component
 {
     [SerializeField] private int _initialSize = 10;
-    [SerializeField] private Transform _container;
+    [SerializeField] protected Transform _container;
     [SerializeField] private T _prefab;
 
     private Queue<T> _pool = new Queue<T>();

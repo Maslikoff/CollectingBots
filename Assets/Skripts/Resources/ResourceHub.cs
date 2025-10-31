@@ -28,8 +28,10 @@ public class ResourceHub : MonoBehaviour
 
         ResourcesChanged?.Invoke(_totalResources);
 
-        if (_resourcePool != null)
-            _resourcePool.ReturnResource(resource);
+        resource.ReturnToPool();
+
+       if (_resourcePool != null)
+           _resourcePool.ReturnResource(resource);
     }
 
     public bool TrySpendResources(int amount)

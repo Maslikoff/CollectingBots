@@ -24,6 +24,7 @@ public class Unit : MonoBehaviour
     public ITakeResource CarriedResource => _carriedResource;
     public bool IsAvailable => !_mover.IsMoving && !_hasResource && !_builder.IsBuilding;
     public bool IsBuilder => _builder != null;
+    public Base UnitBase => _base;
 
     public event Action<Unit> BecameAvailable;
     public event Action<Unit> BecameBusy;
@@ -52,6 +53,9 @@ public class Unit : MonoBehaviour
 
     public void SetBase(Base newBase)
     {
+        if (newBase == null)
+            return;
+
         _base = newBase;
         _basePosition = newBase.transform.position;
     }
@@ -60,6 +64,17 @@ public class Unit : MonoBehaviour
     {
         if (IsAvailable == false)
             return;
+
+        if (resource is Resource resourceObj)
+        {
+            if (resourceObj.IsCollected)
+                return;
+
+            if (resourceObj.IsClaimed)
+                return;
+
+            resourceObj.Claim();
+        }
 
         _carriedResource = resource;
         _basePosition = basePosition;
@@ -132,6 +147,7 @@ public class Unit : MonoBehaviour
             return;
 
         _hasResource = true;
+
         var resourceMono = _carriedResource as MonoBehaviour;
 
         if (resourceMono != null)
@@ -145,6 +161,8 @@ public class Unit : MonoBehaviour
                 rb.isKinematic = true;
                 rb.detectCollisions = false;
             }
+
+            _carriedResource.Collect();
         }
     }
 
@@ -153,7 +171,9 @@ public class Unit : MonoBehaviour
         if (_carriedResource != null)
         {
             var resourceToDeliver = _carriedResource;
-            _carriedResource.Collect();
+
+            if (resourceToDeliver is Resource resourceObj)
+                resourceObj.Release();
 
             ResourceDelivered?.Invoke(this, resourceToDeliver);
 

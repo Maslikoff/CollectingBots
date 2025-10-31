@@ -31,26 +31,33 @@ public class ResourcePool : ObjectPool<Resource>
     protected override void OnObjectGet(Resource resource)
     {
         base.OnObjectGet(resource);
-        _activeResources.Add(resource);
 
-        if (_resourceHub != null)
-            _resourceHub?.RegisterResource(resource);
+        _activeResources.Add(resource);
+        resource.ResetToWorld();
     }
 
     protected override void OnObjectReturn(Resource resource)
     {
         base.OnObjectReturn(resource);
-        _activeResources.Remove(resource);
 
-        if (_resourceHub != null)
-            _resourceHub?.UnregisterResource(resource);
+        _activeResources.Remove(resource);
     }
 
     protected override void ResetObject(Resource resource)
     {
         base.ResetObject(resource);
- 
-        resource.transform.SetParent(null);
+
+        if (_container != null)
+        {
+            resource.transform.SetParent(_container);
+        }
+        else
+        {
+            resource.transform.SetParent(null);
+        }
+
+        resource.transform.localPosition = Vector3.zero;
+        resource.transform.localRotation = Quaternion.identity;
     }
 
     public void SpawnResource()

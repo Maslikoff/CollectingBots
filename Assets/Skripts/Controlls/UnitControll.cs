@@ -5,10 +5,11 @@ using UnityEngine;
 public class UnitControll : MonoBehaviour
 {
     [SerializeField] private UnitPool _unitPool;
-    [SerializeField] private int _initialUnits = 3;
+    [SerializeField] private int _initialUnits = 0;
 
     private List<Unit> _units = new List<Unit>();
     private ResourceHub _resourceHub;
+    private Base _base;
 
     public int UnitsCount => _units.Count;
     public IReadOnlyList<Unit> Units => _units;
@@ -16,16 +17,14 @@ public class UnitControll : MonoBehaviour
     public event Action<Unit> UnitAdded;
     public event Action<Unit> UnitRemoved;
 
-    public void Initialize(ResourceHub resourceHub)
+    public void Initialize(ResourceHub resourceHub, Base baseObj, bool createInitialUnits = true)
     {
         _resourceHub = resourceHub;
+        _base = baseObj;
 
-        CreateInitialUnits();
-    }
+        int unitsToCreate = createInitialUnits ? _initialUnits : 0;
 
-    private void CreateInitialUnits()
-    {
-        for (int i = 0; i < _initialUnits; i++)
+        for (int i = 0; i < unitsToCreate; i++)
             CreateNewUnit();
     }
 
@@ -40,11 +39,16 @@ public class UnitControll : MonoBehaviour
 
     public void AddUnit(Unit unit)
     {
-        if(_units.Contains(unit)) 
+        if (unit == null || _base == null || _units.Contains(unit))
             return;
 
+        if (unit.UnitBase != null && unit.UnitBase != _base)
+            unit.UnitBase.GetComponent<UnitControll>()?.RemoveUnit(unit);
+
         _units.Add(unit);
+        unit.SetBase(_base);
         SetupUnitEvents(unit);
+
         UnitAdded?.Invoke(unit);
     }
 
@@ -59,7 +63,7 @@ public class UnitControll : MonoBehaviour
         foreach (Unit unit in _units)
             if (unit.IsAvailable)
                 return unit;
- 
+
         return null;
     }
 
