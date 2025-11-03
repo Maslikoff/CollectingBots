@@ -12,13 +12,8 @@ public class Resource : MonoBehaviour, ITakeResource
     private Collider _collider;
     private Transform _originalParent;
 
-    private bool _isCollected = false;
-    private bool _isClaimed = false;
-
     public ResourceType Type => _resourceType;
     public Vector3 Position => transform.position;
-    public bool IsCollected => _isCollected;
-    public bool IsClaimed => _isClaimed;
 
     private void Awake()
     {
@@ -29,34 +24,20 @@ public class Resource : MonoBehaviour, ITakeResource
         _originalParent = transform.parent;
     }
 
-    public void Claim()
+    public void Collect(Transform carryTransform)
     {
-        _isClaimed = true;
-    }
-
-    public void Release()
-    {
-        _isClaimed = false;
-    }
-
-    public void Collect()
-    {
-        if (_isCollected) 
-            return;
-
-        _isCollected = true;
-        _isClaimed = true;
+        transform.SetParent(carryTransform);
+        transform.localPosition = Vector3.zero;
+        transform.localRotation = Quaternion.identity;
 
         _collider.enabled = false;
-
         _rigidbody.isKinematic = true;
         _rigidbody.detectCollisions = false;
     }
 
     public void ReturnToPool()
     {
-        _isCollected = false;
-        _isClaimed = false;
+        transform.SetParent(_originalParent);
 
         _renderer.enabled = true;
         _collider.enabled = true;
@@ -64,14 +45,12 @@ public class Resource : MonoBehaviour, ITakeResource
         _rigidbody.isKinematic = false;
         _rigidbody.detectCollisions = true;
 
-        transform.SetParent(_originalParent);
         gameObject.SetActive(false);
     }
 
     public void ResetToWorld()
     {
-        _isCollected = false;
-        _isClaimed = false;
+        transform.SetParent(_originalParent);
 
         _renderer.enabled = true;
         _collider.enabled = true;
@@ -79,7 +58,6 @@ public class Resource : MonoBehaviour, ITakeResource
         _rigidbody.isKinematic = false;
         _rigidbody.detectCollisions = true;
 
-        transform.SetParent(_originalParent);
         gameObject.SetActive(true);
     }
 }

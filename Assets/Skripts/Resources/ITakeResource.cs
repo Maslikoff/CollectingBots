@@ -12,6 +12,6 @@ public interface ITakeResource
     ResourceType Type { get; }
     Vector3 Position { get; }
 
-    void Collect();
+    void Collect(Transform carryTransform);
     void ReturnToPool();
 }

@@ -5,7 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(FlagControll))]
 [RequireComponent(typeof(BaseBuilder))]
 [RequireComponent(typeof(UnitFactory))]
-[RequireComponent(typeof(ResourceCollector))]
+[RequireComponent(typeof(UnitAssigner))]
 public class Base : MonoBehaviour
 {
     [Header("Dependencies")]
@@ -15,7 +15,7 @@ public class Base : MonoBehaviour
     private FlagControll _flagControll;
     private BaseBuilder _baseBuilder;
     private UnitFactory _unitFactory;
-    private ResourceCollector _resourceCollector;
+    private UnitAssigner _resourceCollector;
 
     private bool _shouldCreateInitialUnits = true;
     private bool _isInitialized = false;
@@ -34,7 +34,7 @@ public class Base : MonoBehaviour
         _flagControll = GetComponent<FlagControll>();
         _baseBuilder = GetComponent<BaseBuilder>();
         _unitFactory = GetComponent<UnitFactory>();
-        _resourceCollector = GetComponent<ResourceCollector>();
+        _resourceCollector = GetComponent<UnitAssigner>();
     }
 
     private void Start()

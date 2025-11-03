@@ -65,17 +65,6 @@ public class Unit : MonoBehaviour
         if (IsAvailable == false)
             return;
 
-        if (resource is Resource resourceObj)
-        {
-            if (resourceObj.IsCollected)
-                return;
-
-            if (resourceObj.IsClaimed)
-                return;
-
-            resourceObj.Claim();
-        }
-
         _carriedResource = resource;
         _basePosition = basePosition;
 
@@ -148,22 +137,7 @@ public class Unit : MonoBehaviour
 
         _hasResource = true;
 
-        var resourceMono = _carriedResource as MonoBehaviour;
-
-        if (resourceMono != null)
-        {
-            resourceMono.transform.SetParent(_resourceCarryVisual);
-            resourceMono.transform.localPosition = Vector3.zero;
-            resourceMono.transform.localRotation = Quaternion.identity;
-
-            if (resourceMono.TryGetComponent<Rigidbody>(out var rb))
-            {
-                rb.isKinematic = true;
-                rb.detectCollisions = false;
-            }
-
-            _carriedResource.Collect();
-        }
+       _carriedResource.Collect(_resourceCarryVisual);
     }
 
     private void DepositResource()
@@ -171,9 +145,6 @@ public class Unit : MonoBehaviour
         if (_carriedResource != null)
         {
             var resourceToDeliver = _carriedResource;
-
-            if (resourceToDeliver is Resource resourceObj)
-                resourceObj.Release();
 
             ResourceDelivered?.Invoke(this, resourceToDeliver);
 

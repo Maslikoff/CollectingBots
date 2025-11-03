@@ -1,25 +1,26 @@
 using System.Collections;
 using UnityEngine;
 
-public class ResourceCollector : MonoBehaviour
+public class UnitAssigner : MonoBehaviour
 {
-    [SerializeField] private float _scanInterval = 3f;
+    [SerializeField] private float _assignmentInterval = 3f;
 
     private UnitControll _unitManager;
     private ResourceHub _resourceHub;
-    private Coroutine _scanCoroutine;
+    private Coroutine _assignmentCoroutine;
 
     public void Initialize(UnitControll unitManager, ResourceHub resourceHub)
     {
         _unitManager = unitManager;
         _resourceHub = resourceHub;
-        _scanCoroutine = StartCoroutine(ScanForResourcesRoutine());
+
+        _assignmentCoroutine = StartCoroutine(ScanForResourcesRoutine());
     }
 
     private void OnDestroy()
     {
-        if (_scanCoroutine != null)
-            StopCoroutine(_scanCoroutine);
+        if (_assignmentCoroutine != null)
+            StopCoroutine(_assignmentCoroutine);
     }
 
     private void AssignUnitsToResources()
@@ -35,14 +36,12 @@ public class ResourceCollector : MonoBehaviour
 
             if (resource != null)
                 unit.AssignToCollectResource(resource, transform.position);
-            else
-                break;
         }
     }
 
     private IEnumerator ScanForResourcesRoutine()
     {
-        var wait = new WaitForSeconds(_scanInterval);
+        var wait = new WaitForSeconds(_assignmentInterval);
 
         while (enabled)
         {

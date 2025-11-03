@@ -72,25 +72,21 @@ public class BaseBuilder : MonoBehaviour
         Vector3 buildPosition = builder.transform.position;
         buildPosition.y = 0f;
 
-        GameObject newBaseObject = Instantiate(_basePrefab.gameObject, builder.transform.position, Quaternion.identity);
-        Base newBase = newBaseObject.GetComponent<Base>();
+        Base newBase = Instantiate(_basePrefab, buildPosition, Quaternion.identity);
 
         if (newBase == null)
         {
-            Destroy(newBaseObject);
             StopBuilding();
 
             return;
         }
 
-        Unit[] allUnits = newBase.GetComponentsInChildren<Unit>(true);
-
-        foreach (Unit unit in allUnits)
+        foreach (Unit unit in newBase.GetComponentsInChildren<Unit>(true))
             unit.gameObject.SetActive(false);
 
         newBase.SetAsNewBase();
-        newBase.AddUnit(builder);
         builder.SetBase(newBase);
+        newBase.AddUnit(builder);
 
         _flagController.RemoveFlag();
         StopBuilding();
